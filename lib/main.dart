@@ -55,6 +55,11 @@ class MyApp extends StatelessWidget {
           // canvasColor: secondaryColor,
         ),
         home: const splashScreen(),
+        // home: Container(
+        //   color: Colors.red,
+        //   height: MediaQuery.of(context).size.height / 3,
+        //   width: 50,
+        // ),
       ),
     );
   }

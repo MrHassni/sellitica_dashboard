@@ -47,7 +47,7 @@ class _sales_mapsState extends State<sales_maps> {
       myLocationButtonEnabled: false,
       zoomControlsEnabled: true,
       onMapCreated: _onMapCreated,
-      markers: Set<Marker>.of([
+      markers: <Marker>{
         Marker(
             markerId: MarkerId('shopmarkerId'),
             position: LatLng(31.4825735, 74.3227862),
@@ -58,7 +58,7 @@ class _sales_mapsState extends State<sales_maps> {
               print(latlong);
               // mapsProvider.setShopMarkerPosition(latlong);
             })
-      ]),
+      },
       initialCameraPosition: CameraPosition(
         target: LatLng(31.4825735, 74.3227862),
         zoom: 13.0,

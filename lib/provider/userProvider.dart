@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:erp_aspire/Configs/Dbkeys.dart';
 import 'package:erp_aspire/Configs/Dbpaths.dart';
 import 'package:erp_aspire/Utils/appConstants.dart';
 import 'package:erp_aspire/models/users_Model.dart';
+import 'package:erp_aspire/shared_prefrences/shared_prefrence_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
@@ -13,9 +15,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'authenticationProvider.dart';
 
 class userProvider extends ChangeNotifier {
-  final emailController = new TextEditingController();
-  final fullnameController = new TextEditingController();
-  final passwordController = new TextEditingController();
+  final emailController = TextEditingController();
+  final fullnameController = TextEditingController();
+  final passwordController = TextEditingController();
   final RoundedLoadingButtonController btnController =
       RoundedLoadingButtonController();
 
@@ -36,8 +38,13 @@ class userProvider extends ChangeNotifier {
         print("LOG_D_USERDATA");
         current_user = users_Model.fromJson(value.data()!);
       });
-      pref.setString(Dbkeys.email, current_user!.email);
-      pref.setString(Dbkeys.company, current_user!.company);
+
+      // pref.setString(Dbkeys.email, current_user!.email);
+      // pref.setString(Dbkeys.company, current_user!.company);
+      SharedPreferenceFunctions.saveUserEmailSharedPreference(
+          current_user!.email);
+      SharedPreferenceFunctions.saveCompanyIDSharedPreference(
+          current_user!.companyId);
     }
   }
 
@@ -46,7 +53,12 @@ class userProvider extends ChangeNotifier {
   Future<void> mGetAllUsers() async {
     List<users_Model> allusers = [];
     SharedPreferences pref = await SharedPreferences.getInstance();
-    String? company = await pref.getString(Dbkeys.company);
+    // String? company = await pref.getString(Dbkeys.company);
+    String? company =
+        await SharedPreferenceFunctions.getCompanyIDSharedPreference();
+    String? currentUserEmail =
+        await SharedPreferenceFunctions.getUserEmailSharedPreference();
+    log('-------------------------------');
     if (company == null) {
     } else {
       await FirebaseFirestore.instance
@@ -57,16 +69,17 @@ class userProvider extends ChangeNotifier {
         for (var element in value.docs) {
           if (element.data().containsKey("status")) {
             if (element.data()["status"] == "delete") {
-            } else {
+            } else if (element.data()["addedBy"] == currentUserEmail) {
               allusers.add(users_Model.fromJson(element.data()));
             }
-          } else {
+          } else if (element.data()["addedBy"] == currentUserEmail) {
             allusers.add(users_Model.fromJson(element.data()));
           }
         }
         this.allusers = allusers;
       });
     }
+
     notifyListeners();
   }
 
@@ -94,12 +107,19 @@ class userProvider extends ChangeNotifier {
   }
 
   mUploadNewUser(BuildContext context) async {
+    String? companyID =
+        await SharedPreferenceFunctions.getCompanyIDSharedPreference();
+    String? currentUserEmail =
+        await SharedPreferenceFunctions.getUserEmailSharedPreference();
+
     Provider.of<authenticationProvider>(context, listen: false)
         .createUser(emailController.text, passwordController.text)
         .then((value) async {
       users_Model user = users_Model(
           email: emailController.text,
-          company: current_user!.company,
+          // company: current_user!.company,
+          companyId: companyID!,
+          addedBy: currentUserEmail!,
           aboutMe: "",
           accountstatus: "allowed",
           actionmessage: "Welcome",
@@ -149,7 +169,7 @@ class userProvider extends ChangeNotifier {
       btnController.error();
       mShowNotificationError(
           heading: "Error", context: context, message: error.toString());
-      Timer(Duration(seconds: 1), () {
+      Timer(const Duration(seconds: 1), () {
         btnController.reset();
       });
     });

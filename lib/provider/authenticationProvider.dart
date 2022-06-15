@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../shared_prefrences/shared_prefrence_functions.dart';
+
 class authenticationProvider with ChangeNotifier {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
@@ -44,8 +46,12 @@ class authenticationProvider with ChangeNotifier {
     try {
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
-      print(userCredential.user!.uid);
+      // print(userCredential.user!.uid);
       isUserLoggedIn = true;
+      SharedPreferenceFunctions.saveUserEmailSharedPreference(email);
+      SharedPreferenceFunctions.saveUserLoggedInSharedPreference(true);
+      SharedPreferenceFunctions.saveCompanyIDSharedPreference(
+          userCredential.user!.uid);
       userLoginMessage = "Welcome.!";
       notifyListeners();
     } on FirebaseAuthException catch (e) {

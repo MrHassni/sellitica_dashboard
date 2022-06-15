@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:erp_aspire/Configs/Dbkeys.dart';
 import 'package:erp_aspire/Configs/Dbpaths.dart';
+import 'package:erp_aspire/shared_prefrences/shared_prefrence_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geocode/geocode.dart';
@@ -107,28 +109,35 @@ class addRetailerProvider with ChangeNotifier {
     required double lat,
     required double long,
   }) async {
-    // _dataUploading = true;
-
     SharedPreferences pref = await SharedPreferences.getInstance();
-    String _companyId = pref.getString(Dbkeys.company)!;
-    String _email = pref.getString(Dbkeys.email)!;
+    // String _companyId = pref.getString(Dbkeys.company)!;
+    String? _companyId =
+        await SharedPreferenceFunctions.getCompanyIDSharedPreference();
+    log(_companyId.toString());
+
+    String? _email =
+        await SharedPreferenceFunctions.getUserEmailSharedPreference();
+    log(_email.toString());
+    // String _email = pref.getString(Dbkeys.email)!;
     int _uploadTimestamp = DateTime.now().millisecondsSinceEpoch;
-    String _id = _companyId + "-" + '$_uploadTimestamp';
+
+    String _id = _companyId! + "-" + '$_uploadTimestamp';
     String uploadedPhotoUrl;
+
     Reference _reference = FirebaseStorage.instance
         .ref()
         .child('images/${Path.basename(shopImage!.path)}');
     await _reference
         .putData(
       await shopImage!.readAsBytes(),
-      SettableMetadata(contentType: 'image/jpeg'),
+      SettableMetadata(contentType: 'image/png'),
     )
         .whenComplete(() async {
       await _reference.getDownloadURL().then((value) async {
         uploadedPhotoUrl = value;
 
-        List<String> assignedTo = [_email];
-
+        List<String> assignedTo = [_email!];
+        log(_email.toString());
         await FirebaseFirestore.instance
             .collection(DbPaths.companies)
             .doc(_companyId)
@@ -195,7 +204,7 @@ class addRetailerProvider with ChangeNotifier {
   Future<LatLng> mSetCurrentLocation() async {
     var position = await GeolocatorPlatform.instance.getCurrentPosition();
     latlng = LatLng(position.latitude, position.longitude);
-    print("LOG_D_CURRENTLOCATION");
+    print("LOG_D_CURRENTLOCATION ===========");
     return latlng!;
   }
 

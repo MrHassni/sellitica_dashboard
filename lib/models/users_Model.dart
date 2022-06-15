@@ -6,7 +6,8 @@ class users_Model {
   final String actionmessage;
   final int authenticationType;
   // final int bookings;
-  final String company;
+  final String companyId;
+  final String addedBy;
   final String currentDeviceID;
   final Map<String, dynamic> deviceDetails;
   final String email;
@@ -24,7 +25,8 @@ class users_Model {
 
   const users_Model({
     required this.email,
-    required this.company,
+    required this.companyId,
+    required this.addedBy,
     required this.aboutMe,
     required this.accountstatus,
     required this.actionmessage,
@@ -49,7 +51,8 @@ class users_Model {
     return users_Model(
       email: parsedJson[Dbkeys.email],
       name: parsedJson[Dbkeys.name],
-      company: parsedJson[Dbkeys.company],
+      companyId: parsedJson[Dbkeys.company],
+      addedBy: parsedJson['addedBy'] ?? '',
       aboutMe: parsedJson[Dbkeys.aboutMe],
       accountstatus: parsedJson[Dbkeys.accountstatus],
       actionmessage: parsedJson[Dbkeys.actionmessage],
@@ -74,7 +77,8 @@ class users_Model {
     return {
       "email": email,
       "name": name,
-      "company": company,
+      "company": companyId,
+      "addedBy": addedBy,
       "aboutMe": aboutMe,
       "accountstatus": accountstatus,
       "actionmessage": actionmessage,

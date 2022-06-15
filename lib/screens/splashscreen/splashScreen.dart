@@ -28,7 +28,7 @@ class _splashScreenState extends State<splashScreen> {
           Container(
             height: MediaQuery.of(context).size.height / 3,
           ),
-          Container(
+          SizedBox(
             height: MediaQuery.of(context).size.height / 3,
             // width: 200,
             child: Row(
@@ -54,7 +54,7 @@ class _splashScreenState extends State<splashScreen> {
               ],
             ),
           ),
-          Container(
+          SizedBox(
             height: MediaQuery.of(context).size.height / 3,
             child: const Align(
               alignment: FractionalOffset.center,
@@ -74,7 +74,7 @@ class _splashScreenState extends State<splashScreen> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       setInitial(context);
     });
   }

@@ -103,7 +103,7 @@ class loginscreenMobile extends StatelessWidget {
                           hintText: 'Enter your password',
                           // helperText: 'helper',
                           labelText: 'Password',
-                          prefixIcon: Icon(Icons.password),
+                          prefixIcon: const Icon(Icons.password),
                           suffixIcon: IconButton(
                             onPressed: () {
                               // setState(() {
@@ -161,7 +161,7 @@ class loginscreenMobile extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),
                       ),
-                      padding: EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
                       color: primaryColor,
                       onPressed: () {
                         if (isBlank(_emailController.text) ||
@@ -184,12 +184,12 @@ class loginscreenMobile extends StatelessWidget {
                             provider
                                 .loginUser(_emailController.text,
                                     _passwordController.text)
-                                .then((value) {
+                                .then((value) async {
                               if (provider.isUserLoggedIn) {
                                 provider.mSaveUserLocal(_emailController.text,
                                     _passwordController.text);
                                 // _loginButtonController.success();
-                                Timer(Duration(seconds: 1), () {
+                                Timer(const Duration(seconds: 1), () {
                                   final _controller =
                                       SidebarXController(selectedIndex: 0);
 
@@ -205,7 +205,7 @@ class loginscreenMobile extends StatelessWidget {
                                 //     _scaffoldKey);
                                 mShowNotificationError(
                                     heading: 'Warning',
-                                    message: "${provider.userLoginMessage}",
+                                    message: provider.userLoginMessage,
                                     context: context);
                               }
                             }).onError((error, stackTrace) {

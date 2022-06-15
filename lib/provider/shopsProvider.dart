@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:erp_aspire/shared_prefrences/shared_prefrence_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,8 +18,11 @@ class shopsProvider extends ChangeNotifier {
 
     String? email = await pref.getString(Dbkeys.email);
     // print("log.d");
-    String _companyId = pref.getString(Dbkeys.company)!;
+    // String _companyId = pref.getString(Dbkeys.company)!;
     // print(_companyId);
+
+    String? _companyId =
+        await SharedPreferenceFunctions.getCompanyIDSharedPreference();
 
     await FirebaseFirestore.instance
         .collection(DbPaths.companies)

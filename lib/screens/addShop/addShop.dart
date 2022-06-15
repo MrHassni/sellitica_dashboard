@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:erp_aspire/Utils/Utils.dart';
 import 'package:erp_aspire/Utils/appConstants.dart';
@@ -46,10 +47,26 @@ class _addShopState extends State<addShop> {
     // final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
+    // final FirebaseStorage _storage = FirebaseStorage.instance;
+    // Future<String?> saveUserImageToStorage(String _uid, File _file) async {
+    //   try {
+    //     Reference _ref =
+    //     _storage.ref().child('images/users/$_uid/profile.$_file');
+    //     UploadTask _task = _ref.putFile(
+    //       File(_file.path.toString()),
+    //     );
+    //     return await _task.then(
+    //           (_result) => _result.ref.getDownloadURL(),
+    //     );
+    //   } catch (e) {
+    //     print(e);
+    //   }
+    // }
+
     return Container(
       decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(20))),
-      margin: EdgeInsets.all(20),
+      margin: const EdgeInsets.all(20),
       child: Scaffold(
         // backgroundColor: Colors.white,
         body: Container(
@@ -182,6 +199,9 @@ class _addShopState extends State<addShop> {
                                               controller: _btnController,
                                               color: primaryColor,
                                               onPressed: () async {
+                                                log(provider.latlng!
+                                                    .toString());
+
                                                 provider.ismShopsDataUploading(
                                                     true);
 
@@ -425,6 +445,7 @@ class _addShopState extends State<addShop> {
       var f = await pickedFile!.readAsBytes();
       Provider.of<addRetailerProvider>(context, listen: false)
           .setShopImage(webImage: f, image: pickedFile);
+
       // setState(() {
       //   _file = File("a");
       //   file = pickedFile;
