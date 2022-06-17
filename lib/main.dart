@@ -3,6 +3,7 @@ import 'package:erp_aspire/provider/addRetailerProvider.dart';
 import 'package:erp_aspire/provider/authenticationProvider.dart';
 import 'package:erp_aspire/provider/homeProvider.dart';
 import 'package:erp_aspire/provider/ordersModificationProvider.dart';
+import 'package:erp_aspire/provider/productsProvider.dart';
 import 'package:erp_aspire/provider/shopsProvider.dart';
 import 'package:erp_aspire/provider/userProvider.dart';
 import 'package:erp_aspire/screens/splashscreen/splashScreen.dart';
@@ -39,6 +40,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => homepage_provider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ProductsProvider(),
         ),
         ChangeNotifierProvider(
           create: (context) => ordersModificationProvider(),

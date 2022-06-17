@@ -2,39 +2,50 @@ import 'dart:async';
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:erp_aspire/Utils/appConstants.dart';
-import 'package:erp_aspire/provider/addRetailerProvider.dart';
-import 'package:erp_aspire/provider/userProvider.dart';
+import 'package:erp_aspire/provider/productsProvider.dart';
 import 'package:erp_aspire/screens/dashboard/components/header.dart';
 import 'package:erp_aspire/widgets/regularWidgets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
 import '../../constants.dart';
-import '../../provider/shopsProvider.dart';
 import '../../responsive.dart';
 
-class addUser extends StatefulWidget {
-  const addUser({Key? key}) : super(key: key);
+class AddProducts extends StatefulWidget {
+  const AddProducts({Key? key}) : super(key: key);
 
   @override
-  State<addUser> createState() => _addUserState();
+  State<AddProducts> createState() => _AddProductsState();
 }
 
-class _addUserState extends State<addUser> {
+class _AddProductsState extends State<AddProducts> {
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    Provider.of<userProvider>(context, listen: false).mGetAllUsers();
+    Provider.of<ProductsProvider>(context, listen: false).mGetAllProducts();
+  }
+
+  uploadImage() async {
+    if (kIsWeb) {
+      PickedFile? pickedFile = await ImagePicker().getImage(
+        source: ImageSource.gallery,
+      );
+      var f = await pickedFile!.readAsBytes();
+      Provider.of<ProductsProvider>(context, listen: false)
+          .setProductImage(webImage: f, image: pickedFile);
+    } else {
+      print("NO PERMISSION");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
-
     return Container(
       decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -47,8 +58,8 @@ class _addUserState extends State<addUser> {
               color: Colors.white,
               borderRadius: BorderRadius.all(Radius.circular(20))),
           child: SafeArea(
-            child: Consumer2<addRetailerProvider, userProvider>(
-                builder: (context, provider, userprovider, _child) =>
+            child: Consumer<ProductsProvider>(
+                builder: (context, productProvider, _child) =>
                     SingleChildScrollView(
                       padding: const EdgeInsets.all(defaultPadding),
                       child: Column(
@@ -56,7 +67,7 @@ class _addUserState extends State<addUser> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Header(
-                            title: 'Manage User/ Salesman',
+                            title: 'Manage Products',
                           ),
                           const SizedBox(height: defaultPadding),
                           ///////FORM WIDTH WILL BE FULL IN MOBILE VIEW AND HALF IN THE DESKTOP VIEW.
@@ -74,29 +85,78 @@ class _addUserState extends State<addUser> {
                                     if (Responsive.isMobile(context))
                                       Column(
                                         children: [
+                                          (productProvider.productImage == null)
+                                              ? SizedBox(
+                                                  height: 150,
+                                                  width: 150,
+                                                  child: Image.asset(
+                                                      "assets/images/placeholder.png"))
+                                              : (kIsWeb)
+                                                  ? SizedBox(
+                                                      height: 150,
+                                                      width: 200,
+                                                      child: Image.memory(
+                                                          productProvider
+                                                              .webImage))
+                                                  : SizedBox(
+                                                      height: 150,
+                                                      width: 200,
+                                                      child: Image.memory(
+                                                          productProvider
+                                                              .webImage)),
                                           const SizedBox(
                                               height: defaultPadding),
-                                          TextFormField(
-                                            controller:
-                                                userprovider.fullnameController,
-                                            decoration: inputdecoration(
-                                                label: 'Full name'),
+                                          SizedBox(
+                                            width: 100,
+                                            height: 30,
+                                            child: MaterialButton(
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
+                                              color: primaryColor,
+                                              onPressed: () => uploadImage(),
+                                              child: const Text(
+                                                "Pick image",
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
                                           ),
                                           const SizedBox(
                                               height: defaultPadding),
                                           TextFormField(
-                                            controller:
-                                                userprovider.emailController,
-                                            decoration:
-                                                inputdecoration(label: 'Email'),
+                                            controller: productProvider
+                                                .productNameController,
+                                            decoration: inputdecoration(
+                                                label: 'Product Name'),
                                           ),
                                           const SizedBox(
                                               height: defaultPadding),
                                           TextFormField(
-                                            controller:
-                                                userprovider.passwordController,
+                                            controller: productProvider
+                                                .productCountController,
+                                            keyboardType: TextInputType.number,
                                             decoration: inputdecoration(
-                                                label: 'Password'),
+                                                label: 'Product Quantity'),
+                                          ),
+                                          const SizedBox(
+                                              height: defaultPadding),
+                                          TextFormField(
+                                            controller: productProvider
+                                                .productPriceController,
+                                            keyboardType: TextInputType.number,
+                                            decoration: inputdecoration(
+                                                label: 'Product Price'),
+                                          ),
+                                          const SizedBox(
+                                              height: defaultPadding),
+                                          TextFormField(
+                                            maxLines: 5,
+                                            controller: productProvider
+                                                .productDescriptionController,
+                                            decoration: inputdecoration(
+                                                label: 'Product Description'),
                                           ),
                                           const SizedBox(
                                               height: defaultPadding),
@@ -108,27 +168,43 @@ class _addUserState extends State<addUser> {
                                                 width: 150,
                                                 child: RoundedLoadingButton(
                                                   borderRadius: 12,
-                                                  controller: userprovider
+                                                  controller: productProvider
                                                       .btnController,
                                                   color: primaryColor,
                                                   onPressed: () async {
-                                                    if (userprovider
-                                                            .emailController
+                                                    if (productProvider.productNameController.text.isNotEmpty &&
+                                                        productProvider
+                                                            .productPriceController
                                                             .text
                                                             .isNotEmpty &&
-                                                        userprovider
-                                                            .fullnameController
+                                                        productProvider
+                                                            .productCountController
                                                             .text
                                                             .isNotEmpty &&
-                                                        userprovider
-                                                            .passwordController
+                                                        productProvider
+                                                            .productCountController
                                                             .text
                                                             .isNotEmpty) {
-                                                      userprovider
-                                                          .mUploadNewUser(
-                                                              context);
+                                                      productProvider.uploadProductData(
+                                                          productName:
+                                                              productProvider
+                                                                  .productNameController
+                                                                  .text,
+                                                          productQuantity:
+                                                              productProvider
+                                                                  .productCountController
+                                                                  .text,
+                                                          productPrice:
+                                                              productProvider
+                                                                  .productPriceController
+                                                                  .text,
+                                                          productDescription:
+                                                              productProvider
+                                                                  .productDescriptionController
+                                                                  .text);
                                                     } else {
-                                                      userprovider.btnController
+                                                      productProvider
+                                                          .btnController
                                                           .error();
                                                       mShowNotificationError(
                                                           heading: "Warning",
@@ -139,7 +215,7 @@ class _addUserState extends State<addUser> {
                                                           const Duration(
                                                               milliseconds:
                                                                   500), () {
-                                                        userprovider
+                                                        productProvider
                                                             .btnController
                                                             .reset();
                                                       });
@@ -168,23 +244,24 @@ class _addUserState extends State<addUser> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 3),
                                       // itemCount: 20,
-                                      itemCount: userprovider.allusers.length,
+                                      itemCount:
+                                          productProvider.allProducts.length,
                                       scrollDirection: Axis.vertical,
                                       itemBuilder: (context, index) {
-                                        List<ShopsProfile> allShops =
-                                            Provider.of<shopsProvider>(context,
-                                                    listen: false)
-                                                .shops;
-                                        int assignedNo = 0;
-                                        for (int i = 0;
-                                            i < allShops.length;
-                                            i++) {
-                                          if (allShops[i].assignedto.first ==
-                                              userprovider
-                                                  .allusers[index].email) {
-                                            assignedNo++;
-                                          }
-                                        }
+                                        // List<ShopsProfile> allShops =
+                                        //     Provider.of<shopsProvider>(context,
+                                        //             listen: false)
+                                        //         .shops;
+                                        // int assignedNo = 0;
+                                        // for (int i = 0;
+                                        //     i < allShops.length;
+                                        //     i++) {
+                                        //   if (allShops[i].assignedto.first ==
+                                        //       productProvider
+                                        //           .allProducts[index].email) {
+                                        //     assignedNo++;
+                                        //   }
+                                        // }
 
                                         return Padding(
                                           padding: const EdgeInsets.symmetric(
@@ -213,9 +290,9 @@ class _addUserState extends State<addUser> {
                                                   children: [
                                                     Align(
                                                       child: Text(
-                                                        userprovider
-                                                            .allusers[index]
-                                                            .name,
+                                                        productProvider
+                                                            .allProducts[index]
+                                                            .productName,
                                                         style: const TextStyle(
                                                             color:
                                                                 Colors.black54,
@@ -229,14 +306,25 @@ class _addUserState extends State<addUser> {
                                                     const SizedBox(
                                                       height: 5,
                                                     ),
-                                                    Text(
-                                                      userprovider
-                                                          .allusers[index]
-                                                          .email,
-                                                      style: const TextStyle(
-                                                          color: Colors.grey,
-                                                          fontWeight:
-                                                              FontWeight.w500),
+                                                    SizedBox(
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.5,
+                                                      child: Text(
+                                                        productProvider
+                                                            .allProducts[index]
+                                                            .productDescription,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 2,
+                                                        style: const TextStyle(
+                                                            color: Colors.grey,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w500),
+                                                      ),
                                                     ),
                                                     const SizedBox(
                                                       height: 5,
@@ -259,7 +347,7 @@ class _addUserState extends State<addUser> {
                                                                     .all(8.0),
                                                             child: Text.rich(TextSpan(
                                                                 text:
-                                                                    'Target Orders ',
+                                                                    'Quantity Available  ',
                                                                 style: const TextStyle(
                                                                     fontSize:
                                                                         12,
@@ -271,17 +359,17 @@ class _addUserState extends State<addUser> {
                                                                 children: <
                                                                     InlineSpan>[
                                                                   TextSpan(
-                                                                    text: userprovider
-                                                                        .allusers[
+                                                                    text: productProvider
+                                                                        .allProducts[
                                                                             index]
-                                                                        .targetorders
+                                                                        .productQuantity
                                                                         .toString(),
                                                                     style: const TextStyle(
                                                                         fontSize:
                                                                             12,
                                                                         letterSpacing:
                                                                             0.5,
-                                                                        color: const Color(
+                                                                        color: Color(
                                                                             0xFFFFA113),
                                                                         fontWeight:
                                                                             FontWeight.bold),
@@ -306,8 +394,7 @@ class _addUserState extends State<addUser> {
                                                                 const EdgeInsets
                                                                     .all(8.0),
                                                             child: Text.rich(TextSpan(
-                                                                text:
-                                                                    'Target shops ',
+                                                                text: 'Price  ',
                                                                 style: const TextStyle(
                                                                     fontSize:
                                                                         12,
@@ -319,7 +406,10 @@ class _addUserState extends State<addUser> {
                                                                 children: <
                                                                     InlineSpan>[
                                                                   TextSpan(
-                                                                    text: assignedNo
+                                                                    text: productProvider
+                                                                        .allProducts[
+                                                                            index]
+                                                                        .productPrice
                                                                         .toString(),
                                                                     // userprovider
                                                                     //     .allusers[
@@ -416,20 +506,16 @@ class _addUserState extends State<addUser> {
                                                                       .toString() ==
                                                                   "OkCancelResult.ok") {
                                                                 if (kDebugMode) {
-                                                                  print(userprovider
-                                                                      .allusers[
-                                                                          index]
-                                                                      .id);
+                                                                  // print(userprovider
+                                                                  //     .allusers[
+                                                                  //         index]
+                                                                  //     .id);
 
-                                                                  userprovider.mDeleteUsers(
-                                                                      userprovider
-                                                                          .allusers[
+                                                                  productProvider.mDeleteProducts(
+                                                                      productProvider
+                                                                          .allProducts[
                                                                               index]
-                                                                          .id,
-                                                                      userprovider
-                                                                          .allusers[
-                                                                              index]
-                                                                          .email);
+                                                                          .id);
                                                                 }
                                                               }
                                                             },
@@ -508,7 +594,7 @@ class _addUserState extends State<addUser> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       const Text(
-                                        "Add Users/ Salesman",
+                                        "Add Products",
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: primaryColor),
@@ -517,29 +603,81 @@ class _addUserState extends State<addUser> {
                                         height: height / 1.25,
                                         child: Column(
                                           children: [
+                                            (productProvider.productImage ==
+                                                    null)
+                                                ? SizedBox(
+                                                    height: 150,
+                                                    width: 150,
+                                                    child: Image.asset(
+                                                        "assets/images/placeholder.png"))
+                                                : (kIsWeb)
+                                                    ? SizedBox(
+                                                        height: 150,
+                                                        width: 200,
+                                                        child: Image.memory(
+                                                            productProvider
+                                                                .webImage))
+                                                    : SizedBox(
+                                                        height: 150,
+                                                        width: 200,
+                                                        child: Image.memory(
+                                                            productProvider
+                                                                .webImage)),
                                             const SizedBox(
                                                 height: defaultPadding),
-                                            TextFormField(
-                                              controller: userprovider
-                                                  .fullnameController,
-                                              decoration: inputdecoration(
-                                                  label: 'Full name'),
+                                            SizedBox(
+                                              width: 100,
+                                              height: 30,
+                                              child: MaterialButton(
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                                color: primaryColor,
+                                                onPressed: () => uploadImage(),
+                                                child: const Text(
+                                                  "Pick image",
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                              ),
                                             ),
                                             const SizedBox(
                                                 height: defaultPadding),
                                             TextFormField(
-                                              controller:
-                                                  userprovider.emailController,
+                                              controller: productProvider
+                                                  .productNameController,
                                               decoration: inputdecoration(
-                                                  label: 'Email'),
+                                                  label: 'Product Name'),
                                             ),
                                             const SizedBox(
                                                 height: defaultPadding),
                                             TextFormField(
-                                              controller: userprovider
-                                                  .passwordController,
+                                              controller: productProvider
+                                                  .productCountController,
+                                              keyboardType:
+                                                  TextInputType.number,
                                               decoration: inputdecoration(
-                                                  label: 'Password'),
+                                                  label: 'Product Quantity'),
+                                            ),
+                                            const SizedBox(
+                                                height: defaultPadding),
+                                            TextFormField(
+                                              controller: productProvider
+                                                  .productPriceController,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              decoration: inputdecoration(
+                                                  label: 'Product Price'),
+                                            ),
+                                            const SizedBox(
+                                                height: defaultPadding),
+                                            TextFormField(
+                                              controller: productProvider
+                                                  .productDescriptionController,
+                                              maxLines: 5,
+                                              decoration: inputdecoration(
+                                                  label: 'Product Description'),
                                             ),
                                             const SizedBox(
                                                 height: defaultPadding),
@@ -551,27 +689,68 @@ class _addUserState extends State<addUser> {
                                                   width: 150,
                                                   child: RoundedLoadingButton(
                                                     borderRadius: 12,
-                                                    controller: userprovider
+                                                    controller: productProvider
                                                         .btnController,
                                                     color: primaryColor,
                                                     onPressed: () async {
-                                                      if (userprovider
-                                                              .emailController
+                                                      productProvider
+                                                          .ismShopsDataUploading(
+                                                              true);
+
+                                                      if (productProvider.productNameController.text.isNotEmpty &&
+                                                          productProvider
+                                                              .productCountController
                                                               .text
                                                               .isNotEmpty &&
-                                                          userprovider
-                                                              .fullnameController
+                                                          productProvider
+                                                              .productPriceController
                                                               .text
                                                               .isNotEmpty &&
-                                                          userprovider
-                                                              .passwordController
+                                                          productProvider
+                                                              .productDescriptionController
                                                               .text
-                                                              .isNotEmpty) {
-                                                        userprovider
-                                                            .mUploadNewUser(
-                                                                context);
+                                                              .isNotEmpty &&
+                                                          productProvider
+                                                                  .productImage !=
+                                                              null) {
+                                                        productProvider.uploadProductData(
+                                                            productName:
+                                                                productProvider
+                                                                    .productNameController
+                                                                    .text,
+                                                            productQuantity:
+                                                                productProvider
+                                                                    .productCountController
+                                                                    .text,
+                                                            productPrice:
+                                                                productProvider
+                                                                    .productPriceController
+                                                                    .text,
+                                                            productDescription:
+                                                                productProvider
+                                                                    .productDescriptionController
+                                                                    .text);
+
+                                                        mShowNotification(
+                                                            heading: "Success",
+                                                            context: context,
+                                                            message:
+                                                                "Shop added successfully");
+                                                        productProvider
+                                                            .btnController
+                                                            .success();
+                                                        productProvider
+                                                            .mGetAllProducts();
+                                                        Timer(
+                                                            const Duration(
+                                                                milliseconds:
+                                                                    600), () {
+                                                          productProvider
+                                                              .btnController
+                                                              .reset();
+                                                        });
                                                       } else {
-                                                        userprovider
+                                                        productProvider
                                                             .btnController
                                                             .error();
                                                         mShowNotificationError(
@@ -583,10 +762,13 @@ class _addUserState extends State<addUser> {
                                                             const Duration(
                                                                 milliseconds:
                                                                     500), () {
-                                                          userprovider
+                                                          productProvider
                                                               .btnController
                                                               .reset();
                                                         });
+                                                        productProvider
+                                                            .ismShopsDataUploading(
+                                                                true);
                                                       }
                                                     },
                                                     child: const Padding(

@@ -169,6 +169,7 @@ SidebarX sidemenu(SidebarXController controller) {
       SidebarXItem(icon: Icons.home, label: 'Dashboard'),
       SidebarXItem(icon: Icons.shopping_bag, label: 'Add Shop'),
       SidebarXItem(icon: Icons.person_add, label: 'Add User'),
+      SidebarXItem(icon: Icons.add_box_sharp, label: 'Add Products'),
       SidebarXItem(icon: Icons.task, label: 'All Shops'),
       SidebarXItem(icon: Icons.document_scanner, label: 'Document'),
       SidebarXItem(icon: Icons.circle_notifications, label: 'Notification'),

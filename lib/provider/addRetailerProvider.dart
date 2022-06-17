@@ -58,8 +58,10 @@ class addRetailerProvider with ChangeNotifier {
 
   getShopsTypesData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    String _companyId = pref.getString(Dbkeys.company)!;
-    // print("log.d");
+    // String _companyId = pref.getString(Dbkeys.company)!;
+    String? _companyId =
+        await SharedPreferenceFunctions.getCompanyIDSharedPreference();
+    print("log.d");
     // print(_companyId);
 
     await FirebaseFirestore.instance
@@ -100,15 +102,15 @@ class addRetailerProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  postUploadShopData({
-    required String shopName,
-    required String ownerName,
-    required String cnic,
-    required String phone,
-    required String address,
-    required double lat,
-    required double long,
-  }) async {
+  postUploadShopData(
+      {required String shopName,
+      required String ownerName,
+      required String cnic,
+      required String phone,
+      required String address,
+      required double lat,
+      required double long,
+      required String assignedTo}) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     // String _companyId = pref.getString(Dbkeys.company)!;
     String? _companyId =
@@ -136,7 +138,7 @@ class addRetailerProvider with ChangeNotifier {
       await _reference.getDownloadURL().then((value) async {
         uploadedPhotoUrl = value;
 
-        List<String> assignedTo = [_email!];
+        // List<String> assignedTo = [_email!];
         log(_email.toString());
         await FirebaseFirestore.instance
             .collection(DbPaths.companies)
@@ -157,7 +159,7 @@ class addRetailerProvider with ChangeNotifier {
           Dbkeys.timestamp: _uploadTimestamp,
           Dbkeys.approved: false,
           Dbkeys.latlong: GeoPoint(lat, long),
-          Dbkeys.assignedto: assignedTo,
+          Dbkeys.assignedto: [assignedTo],
           Dbkeys.company: _companyId,
         }, SetOptions(merge: true));
       });

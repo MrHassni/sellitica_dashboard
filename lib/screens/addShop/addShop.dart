@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:erp_aspire/Utils/Utils.dart';
 import 'package:erp_aspire/Utils/appConstants.dart';
 import 'package:erp_aspire/provider/addRetailerProvider.dart';
+import 'package:erp_aspire/provider/userProvider.dart';
 import 'package:erp_aspire/screens/dashboard/components/header.dart';
 import 'package:erp_aspire/widgets/regularWidgets.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -30,15 +32,42 @@ class _addShopState extends State<addShop> {
     mapController = controller;
   }
 
+  String? selectedValue;
+  final TextEditingController textEditingController = TextEditingController();
+  final List<String> items = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getAvailableUsersData();
+  }
+
+  getAvailableUsersData() {
+    Provider.of<userProvider>(context, listen: false).mGetAllUsers();
+    int length =
+        Provider.of<userProvider>(context, listen: false).allusers.length;
+    for (int i = 0; i < length; i++) {
+      items.add(
+          Provider.of<userProvider>(context, listen: false).allusers[i].email);
+    }
+  }
+
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
+
   // File _file = File("zz");
   // Uint8List webImage = Uint8List(10);
   // PickedFile? file;
   final RoundedLoadingButtonController _btnController =
       RoundedLoadingButtonController();
-  final _shopNameController = new TextEditingController();
-  final _ownerNameController = new TextEditingController();
-  final _cnicController = new TextEditingController();
-  final _phoneController = new TextEditingController();
+  final _shopNameController = TextEditingController();
+  final _ownerNameController = TextEditingController();
+  final _cnicController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   // ScrollController? _controller = ScrollController();
 
@@ -46,22 +75,6 @@ class _addShopState extends State<addShop> {
   Widget build(BuildContext context) {
     // final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
-
-    // final FirebaseStorage _storage = FirebaseStorage.instance;
-    // Future<String?> saveUserImageToStorage(String _uid, File _file) async {
-    //   try {
-    //     Reference _ref =
-    //     _storage.ref().child('images/users/$_uid/profile.$_file');
-    //     UploadTask _task = _ref.putFile(
-    //       File(_file.path.toString()),
-    //     );
-    //     return await _task.then(
-    //           (_result) => _result.ref.getDownloadURL(),
-    //     );
-    //   } catch (e) {
-    //     print(e);
-    //   }
-    // }
 
     return Container(
       decoration: const BoxDecoration(
@@ -75,8 +88,9 @@ class _addShopState extends State<addShop> {
               color: Colors.white,
               borderRadius: BorderRadius.all(Radius.circular(20))),
           child: SafeArea(
-              child: Consumer<addRetailerProvider>(
-                  builder: (context, provider, _child) => SingleChildScrollView(
+              child: Consumer2<addRetailerProvider, userProvider>(
+                  builder: (context, provider, userprovider, _child) =>
+                      SingleChildScrollView(
                         padding: const EdgeInsets.all(defaultPadding),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -188,6 +202,98 @@ class _addShopState extends State<addShop> {
                                             label: 'Cnic (optional)'),
                                       ),
                                       const SizedBox(height: defaultPadding),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(12),
+                                            border:
+                                                Border.all(color: Colors.grey)),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton2(
+                                            itemPadding:
+                                                const EdgeInsets.symmetric(
+                                                    vertical: 10,
+                                                    horizontal: 5),
+                                            isExpanded: true,
+                                            hint: Text(
+                                              'Select Sales Man',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color:
+                                                    Theme.of(context).hintColor,
+                                              ),
+                                            ),
+                                            items: items
+                                                .map((item) =>
+                                                    DropdownMenuItem<String>(
+                                                      value: item,
+                                                      child: Text(
+                                                        item,
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                    ))
+                                                .toList(),
+                                            value: selectedValue,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                selectedValue = value as String;
+                                              });
+                                            },
+                                            buttonHeight: 40,
+                                            buttonWidth: 200,
+                                            itemHeight: 40,
+                                            dropdownMaxHeight: 200,
+                                            searchController:
+                                                textEditingController,
+                                            searchInnerWidget: Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 8,
+                                                bottom: 4,
+                                                right: 8,
+                                                left: 8,
+                                              ),
+                                              child: TextFormField(
+                                                controller:
+                                                    textEditingController,
+                                                decoration: InputDecoration(
+                                                  isDense: true,
+                                                  contentPadding:
+                                                      const EdgeInsets
+                                                          .symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 8,
+                                                  ),
+                                                  hintText:
+                                                      'Search for an item...',
+                                                  hintStyle: const TextStyle(
+                                                      fontSize: 12),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            searchMatchFn: (item, searchValue) {
+                                              return (item.value
+                                                  .toString()
+                                                  .contains(searchValue));
+                                            },
+                                            //This to clear the search value when you close the menu
+                                            onMenuStateChange: (isOpen) {
+                                              if (!isOpen) {
+                                                textEditingController.clear();
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: defaultPadding),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
@@ -235,27 +341,32 @@ class _addShopState extends State<addShop> {
                                                             .isNotEmpty &&
                                                         isCnicValid &&
                                                         // isLocationFormatChosen &&
-                                                        isphoneValid;
+                                                        isphoneValid &&
+                                                        selectedValue != null &&
+                                                        provider.shopImage !=
+                                                            null;
 
                                                 if (isReadyToUpload) {
-                                                  await provider
-                                                      .postUploadShopData(
-                                                    shopName:
-                                                        _shopNameController
-                                                            .text,
-                                                    cnic: _cnicController.text,
-                                                    ownerName:
-                                                        _ownerNameController
-                                                            .text,
-                                                    phone:
-                                                        _phoneController.text,
-                                                    address: provider
-                                                        .addressController.text,
-                                                    lat: provider
-                                                        .latlng!.latitude,
-                                                    long: provider
-                                                        .latlng!.longitude,
-                                                  );
+                                                  await provider.postUploadShopData(
+                                                      shopName:
+                                                          _shopNameController
+                                                              .text,
+                                                      cnic:
+                                                          _cnicController.text,
+                                                      ownerName:
+                                                          _ownerNameController
+                                                              .text,
+                                                      phone:
+                                                          _phoneController.text,
+                                                      address: provider
+                                                          .addressController
+                                                          .text,
+                                                      lat: provider
+                                                          .latlng!.latitude,
+                                                      long: provider
+                                                          .latlng!.longitude,
+                                                      assignedTo:
+                                                          selectedValue!);
 
                                                   // addRetailerProvider.ismShopsDataUploading(false);
                                                   // Utils.toast("Done");
@@ -267,6 +378,10 @@ class _addShopState extends State<addShop> {
                                                       message:
                                                           "Shop added successfully");
                                                   _btnController.success();
+                                                  Provider.of<userProvider>(
+                                                          context,
+                                                          listen: false)
+                                                      .mGetAllUsers();
                                                   Timer(
                                                       const Duration(
                                                           milliseconds: 600),
@@ -288,7 +403,7 @@ class _addShopState extends State<addShop> {
                                                       heading: "Warning",
                                                       context: context,
                                                       message:
-                                                          "Please fill required input fields");
+                                                          "Please provide required data");
                                                   provider
                                                       .ismShopsDataUploading(
                                                           false);
@@ -344,7 +459,7 @@ class _addShopState extends State<addShop> {
                                                 myLocationButtonEnabled: false,
                                                 zoomControlsEnabled: true,
                                                 onMapCreated: _onMapCreated,
-                                                markers: Set<Marker>.of([
+                                                markers: <Marker>{
                                                   Marker(
                                                       markerId: const MarkerId(
                                                           'shopmarkerId'),
@@ -361,7 +476,7 @@ class _addShopState extends State<addShop> {
                                                             .mUpdateShopLocation(
                                                                 latlong);
                                                       })
-                                                ]),
+                                                },
                                                 initialCameraPosition:
                                                     CameraPosition(
                                                   target:

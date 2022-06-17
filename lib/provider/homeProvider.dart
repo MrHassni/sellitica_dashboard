@@ -3,6 +3,7 @@ import 'package:erp_aspire/Configs/Dbkeys.dart';
 import 'package:erp_aspire/Configs/Dbpaths.dart';
 import 'package:erp_aspire/Configs/Enum.dart';
 import 'package:erp_aspire/models/orderModel.dart';
+import 'package:erp_aspire/shared_prefrences/shared_prefrence_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:pluto_grid/pluto_grid.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,7 +32,9 @@ class homepage_provider with ChangeNotifier {
 
   getOrdersDataList() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    String? _companyId = pref.getString(Dbkeys.company);
+    // String? _companyId = pref.getString(Dbkeys.company);
+    String? _companyId =
+        await SharedPreferenceFunctions.getCompanyIDSharedPreference();
 
     if (_companyId == null) {
       return;

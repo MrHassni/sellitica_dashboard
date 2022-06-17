@@ -10,6 +10,7 @@
 // import '../screens/addUser/addUser.dart';
 // import '../screens/main/components/side_menu.dart';
 // import '../screens/main/main_screen.dart';
+import 'package:erp_aspire/screens/addProducts/addProducts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sidebarx/sidebarx.dart';
@@ -142,12 +143,14 @@ class body extends StatelessWidget {
       required this.controller,
       this.Dashboardscreen,
       this.addshop,
-      this.adduser})
+      this.adduser,
+      this.addproducts})
       : super(key: key);
   final SidebarXController controller;
   final Widget? Dashboardscreen;
   final Widget? addshop;
   final Widget? adduser;
+  final Widget? addproducts;
 
   @override
   Widget build(BuildContext context) {
@@ -162,8 +165,9 @@ class body extends StatelessWidget {
             return addshop ?? const addShop();
           case 2:
             return adduser ?? const addUser();
-
           case 3:
+            return addproducts ?? const AddProducts();
+          case 4:
             return allshops();
           default:
             return Text(

@@ -37,8 +37,8 @@ class _homescreenwebState extends State<homescreenweb> {
                       child: Center(child: Icon(Icons.image)),
                     ),
                     ListTile(
-                      leading: Icon(Icons.location_city),
-                      title: Text('Partner'),
+                      leading: const Icon(Icons.location_city),
+                      title: const Text('Partner'),
                       onTap: () {
                         // _setPage(ClientPage());
                       },

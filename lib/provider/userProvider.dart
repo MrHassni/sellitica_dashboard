@@ -26,7 +26,8 @@ class userProvider extends ChangeNotifier {
   Future<void> mGetUserDetails() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
 
-    String? email = await pref.getString(Dbkeys.email);
+    String? email =
+        await SharedPreferenceFunctions.getUserEmailSharedPreference();
 
     if (email == null) {
     } else {
@@ -35,7 +36,6 @@ class userProvider extends ChangeNotifier {
           .doc(email)
           .get()
           .then((value) {
-        print("LOG_D_USERDATA");
         current_user = users_Model.fromJson(value.data()!);
       });
 
@@ -153,12 +153,12 @@ class userProvider extends ChangeNotifier {
         passwordController.clear();
         fullnameController.clear();
         mGetAllUsers();
-        Timer(Duration(seconds: 1), () {
+        Timer(const Duration(seconds: 1), () {
           btnController.reset();
         });
       }).onError((error, stackTrace) {
         btnController.error();
-        Timer(Duration(seconds: 1), () {
+        Timer(const Duration(seconds: 1), () {
           btnController.reset();
         });
 

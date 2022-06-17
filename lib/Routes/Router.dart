@@ -1,3 +1,4 @@
+import 'package:erp_aspire/screens/addProducts/addProducts.dart';
 import 'package:erp_aspire/screens/addShop/addShop.dart';
 import 'package:erp_aspire/screens/addShop/sales_maps.dart';
 import 'package:erp_aspire/screens/addUser/addUser.dart';
@@ -13,6 +14,7 @@ const String addshop = '/addshop';
 const String salesmaps = '/salesmaps';
 const String adduser = '/adduser';
 const String pendingorders = '/pendingorders';
+const String addproducts = '/addproducts';
 
 // const String salesMapsVisit = '/salesMapsVisit';
 
@@ -33,7 +35,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 
     case salesmaps:
       return MaterialPageRoute(builder: (_) => sales_maps());
-
+    case addproducts:
+      return MaterialPageRoute(builder: (_) => const AddProducts());
     case pendingorders:
       return MaterialPageRoute(
           builder: (_) => pendingOrders(

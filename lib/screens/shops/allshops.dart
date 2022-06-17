@@ -21,7 +21,7 @@ class _allshopsState extends State<allshops> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
-
+    Provider.of<shopsProvider>(context).getShopsDataList();
     return Container(
       decoration: const BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(20))),
@@ -537,6 +537,23 @@ class _allshopsState extends State<allshops> {
                                                           amountOfFiles: "",
                                                           numOfFiles: "Type",
                                                         ),
+                                                        InfoCard(
+                                                          svgSrc:
+                                                              "assets/icons/Documents.svg",
+                                                          title: userprovider
+                                                                      .selectedShop ==
+                                                                  null
+                                                              ? ""
+                                                              : userprovider
+                                                                  .selectedShop!
+                                                                  .assignedto
+                                                                  .first
+                                                                  .toString(),
+                                                          amountOfFiles: "",
+                                                          numOfFiles:
+                                                              "Assigned To",
+                                                        ),
+                                                        SizedBox(height: 15)
                                                       ],
                                                     ),
                                                   ),

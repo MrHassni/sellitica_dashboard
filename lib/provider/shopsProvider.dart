@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:erp_aspire/shared_prefrences/shared_prefrence_functions.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Configs/Dbkeys.dart';
 import '../Configs/Dbpaths.dart';
@@ -14,12 +13,8 @@ class shopsProvider extends ChangeNotifier {
   ShopsProfile? selectedShop;
 
   getShopsDataList() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-
-    String? email = await pref.getString(Dbkeys.email);
-    // print("log.d");
-    // String _companyId = pref.getString(Dbkeys.company)!;
-    // print(_companyId);
+    String? email =
+        await SharedPreferenceFunctions.getUserEmailSharedPreference();
 
     String? _companyId =
         await SharedPreferenceFunctions.getCompanyIDSharedPreference();
@@ -35,7 +30,8 @@ class shopsProvider extends ChangeNotifier {
       // filteredShops.clear();
       final List<ShopsProfile> shopsData = [];
       for (int i = 0; i < docs.docs.length; i++) {
-        if (docs.docs[i].data().containsKey(Dbkeys.id)) {
+        if (docs.docs[i].data()[Dbkeys.addedby] == email ||
+            docs.docs[i].data()[Dbkeys.assignedto][0] == email) {
           ShopsProfile userModel = ShopsProfile(
               id: docs.docs[i][Dbkeys.id],
               url: docs.docs[i][Dbkeys.url],
@@ -62,6 +58,8 @@ class shopsProvider extends ChangeNotifier {
       notifyListeners();
     });
   }
+
+  List<ShopsProfile> get shops => allShops;
 
   mUpdateSelectedShop(ShopsProfile shop) {
     selectedShop = shop;
