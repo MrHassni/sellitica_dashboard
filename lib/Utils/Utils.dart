@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 class Utils {
   // static changeStatusColor(Color color) async {
@@ -117,16 +119,21 @@ Widget customCircleAvatarShop({String? url, double? radius}) {
   // }
 }
 
-snackBar(String text, GlobalKey<ScaffoldState> _scaffoldKey) {
-  final snackBar = SnackBar(
-    content: Text('$text'),
-    duration: Duration(seconds: 1),
-    // action: SnackBarAction(
-    //   label: "Close",
-    //   onPressed: () {
-    //     // Some code to undo the change.
-    //   },
-    // ),
+snackBar(String text, BuildContext _scaffoldKey) {
+  showTopSnackBar(
+    _scaffoldKey,
+    CustomSnackBar.success(
+      backgroundColor: Colors.pinkAccent,
+      icon: Container(
+        margin: const EdgeInsets.only(left: 50, bottom: 30),
+        child: Icon(
+          Icons.line_axis,
+          color: Colors.pink.shade100,
+          size: 55,
+        ),
+      ),
+      message: text,
+    ),
   );
-  _scaffoldKey.currentState!.showSnackBar(snackBar);
+  // _scaffoldKey.currentState!.showSnackBar(snackBar);
 }

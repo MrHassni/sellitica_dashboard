@@ -2,22 +2,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:erp_aspire/Configs/Dbkeys.dart';
 import 'package:erp_aspire/Configs/Dbpaths.dart';
 import 'package:erp_aspire/Configs/Enum.dart';
+import 'package:erp_aspire/models/orderDetailsModel.dart';
 import 'package:erp_aspire/models/orderModel.dart';
 import 'package:erp_aspire/shared_prefrences/shared_prefrence_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:pluto_grid/pluto_grid.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class homepage_provider with ChangeNotifier {
   List<orderModel> pendingOrdermodel = [];
   List<orderModel> inprocessOrdermodel = [];
   List<orderModel> completedOrdermodel = [];
+  List<orderModel> allOrdermodel = [];
   List<orderModel> othersOrdermodel = [];
 
   List<PlutoRow> pendingOrdersGridList = [];
   List<PlutoRow> inprocessOrdersGridList = [];
   List<PlutoRow> completeOrdersGridList = [];
   List<PlutoRow> othersOrdersGridList = [];
+  List<OrderDetailsModel> allOrderDetails = [];
+  var firestoreInstance = FirebaseFirestore.instance;
 
   bool isDataLoaded = false;
   static final homepage_provider _instance = homepage_provider._internal();
@@ -30,8 +33,38 @@ class homepage_provider with ChangeNotifier {
     getOrdersDataList();
   }
 
+  getSpecificOrderDetails({required String orderId}) async {
+    String? _companyId =
+        await SharedPreferenceFunctions.getCompanyIDSharedPreference();
+    await firestoreInstance
+        .collection(DbPaths.companies)
+        .doc(_companyId)
+        .collection(DbPaths.orders)
+        .doc(orderId)
+        .collection(DbPaths.orderdetails)
+        .get()
+        .then((value) {
+      allOrderDetails = [];
+      for (int i = 0; i < value.docs.length; i++) {
+        OrderDetailsModel orderdetails = OrderDetailsModel(
+            company: value.docs[i]['company'],
+            orderId: value.docs[i]['orderid'],
+            productName: value.docs[i]['name'],
+            productQuantity: value.docs[i]['quantity'],
+            productPrice: value.docs[i]['price'],
+            prodId: value.docs[i]['prodid'],
+            timestamp: value.docs[i]['timestamp'],
+            url: value.docs[i]['url'],
+            subTotal: value.docs[i]['subTotal']);
+
+        allOrderDetails.add(orderdetails);
+      }
+    });
+  }
+
+  List<OrderDetailsModel> get orders => allOrderDetails;
+
   getOrdersDataList() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
     // String? _companyId = pref.getString(Dbkeys.company);
     String? _companyId =
         await SharedPreferenceFunctions.getCompanyIDSharedPreference();
@@ -39,12 +72,20 @@ class homepage_provider with ChangeNotifier {
     if (_companyId == null) {
       return;
     } else {
-      var firestoreInstance = FirebaseFirestore.instance;
       List<orderModel> pendingmodel = [];
 
       /*
     PENDING ORDERS
     */
+
+      // List<String> ids = [];
+      //
+      // int length = shopsProvider().shops.length;
+
+      // for (int i = 0; i < length; i++) {
+
+      //   ids.add(shopsProvider().shops[i].id);
+      // }
 
       await firestoreInstance
           .collection(DbPaths.companies)
@@ -53,33 +94,40 @@ class homepage_provider with ChangeNotifier {
           .get()
           .then((docs) async {
         for (int i = 0; i < docs.docs.length; i++) {
-          if (docs.docs[i].data().containsKey(Dbkeys.orderid)) {
-            String? shopname;
-            String? shopAddress;
-            await firestoreInstance
-                .collection(DbPaths.companies)
-                .doc(_companyId)
-                .collection(DbPaths.shops)
-                .doc(docs.docs[i][Dbkeys.shopid])
-                .get()
-                .then((value) {
-              shopname = value.data()![Dbkeys.shopName];
-              shopAddress = value.data()![Dbkeys.address];
-            }).onError((error, stackTrace) {
-              print("error1");
-              print(error);
-            });
+          if (docs.docs[i].data().containsKey(Dbkeys.orderid)
+              // &&
+              ) {
+            // String? shopname;
+            // String? shopAddress;
+            // await firestoreInstance
+            //     .collection(DbPaths.companies)
+            //     .doc(_companyId)
+            //     .collection(DbPaths.shops)
+            //     .doc(docs.docs[i][Dbkeys.shopid])
+            //     .get()
+            //     .then((value) {
+            //   shopname = value.data()![Dbkeys.shopName];
+            //   shopAddress = value.data()![Dbkeys.address];
+            // }).onError((error, stackTrace) {
+            //   print("error1");
+            //   print(error);
+            // });
             Map<String, dynamic> mapData = docs.docs[i].data();
-            mapData.putIfAbsent(Dbkeys.shopName, () => shopname);
-            mapData.putIfAbsent(Dbkeys.address, () => shopAddress);
+            // mapData.putIfAbsent(Dbkeys.shopName, () => shopname);
+            // mapData.putIfAbsent(Dbkeys.address, () => shopAddress);
+            // if (ids.contains(docs.docs[i].data()['shopid'])) {
+
             pendingmodel.add(orderModel.fromJson(mapData));
+            // }
           }
         }
-      }).onError((error, stackTrace) {
-        print("error2");
-        print(error);
       });
+      //     .onError((error, stackTrace) {
+      //   print("error  2");
 
+      //   print(error);
+      // });
+      allOrdermodel = pendingmodel;
       pendingOrdermodel =
           pendingmodel.where((element) => element.status == 0).toList();
       inprocessOrdermodel =
@@ -91,10 +139,10 @@ class homepage_provider with ChangeNotifier {
           .toList();
       isDataLoaded = true;
 
-      print("pendingOrdermodel${pendingOrdermodel.length}");
-      print("inprocessOrdermodel${inprocessOrdermodel.length}");
-      print("completedOrdermodel${completedOrdermodel.length}");
-      print("othersOrdermodel${othersOrdermodel.length}");
+      print("pendingOrdermodel         ${pendingOrdermodel.length}");
+      print("inprocessOrdermodel       ${inprocessOrdermodel.length}");
+      print("completedOrdermodel       ${completedOrdermodel.length}");
+      print("othersOrdermodel          ${othersOrdermodel.length}");
     }
     notifyListeners();
 
@@ -117,15 +165,8 @@ class homepage_provider with ChangeNotifier {
           'note': PlutoCell(value: element.note),
           'status': PlutoCell(value: status),
           'time': PlutoCell(
-              value: DateTime.fromMicrosecondsSinceEpoch(element.timestamp)
+              value: DateTime.fromMillisecondsSinceEpoch(element.timestamp)
                   .toString()),
-          'bank': PlutoCell(value: element.bankname),
-          'cheque': PlutoCell(value: element.chequeno),
-          'from': PlutoCell(value: element.fromaccount),
-          'to': PlutoCell(value: element.toaccount),
-          'method': PlutoCell(value: element.paymentmethod),
-          'receive': PlutoCell(value: element.receivedamount.toString()),
-          'transaction': PlutoCell(value: element.transactionID.toString()),
         },
       ));
     });
@@ -148,15 +189,15 @@ class homepage_provider with ChangeNotifier {
           'note': PlutoCell(value: element.note),
           'status': PlutoCell(value: status),
           'time': PlutoCell(
-              value: DateTime.fromMicrosecondsSinceEpoch(element.timestamp)
+              value: DateTime.fromMillisecondsSinceEpoch(element.timestamp)
                   .toString()),
-          'bank': PlutoCell(value: element.bankname),
-          'cheque': PlutoCell(value: element.chequeno),
-          'from': PlutoCell(value: element.fromaccount),
-          'to': PlutoCell(value: element.toaccount),
-          'method': PlutoCell(value: element.paymentmethod),
-          'receive': PlutoCell(value: element.receivedamount.toString()),
-          'transaction': PlutoCell(value: element.transactionID.toString()),
+          // 'bank': PlutoCell(value: element.bankname),
+          // 'cheque': PlutoCell(value: element.chequeno),
+          // 'from': PlutoCell(value: element.fromaccount),
+          // 'to': PlutoCell(value: element.toaccount),
+          // 'method': PlutoCell(value: element.paymentmethod),
+          // 'receive': PlutoCell(value: element.receivedamount.toString()),
+          // 'transaction': PlutoCell(value: element.transactionID.toString()),
         },
       ));
     });
@@ -179,15 +220,15 @@ class homepage_provider with ChangeNotifier {
           'note': PlutoCell(value: element.note),
           'status': PlutoCell(value: status),
           'time': PlutoCell(
-              value: DateTime.fromMicrosecondsSinceEpoch(element.timestamp)
+              value: DateTime.fromMillisecondsSinceEpoch(element.timestamp)
                   .toString()),
-          'bank': PlutoCell(value: element.bankname),
-          'cheque': PlutoCell(value: element.chequeno),
-          'from': PlutoCell(value: element.fromaccount),
-          'to': PlutoCell(value: element.toaccount),
-          'method': PlutoCell(value: element.paymentmethod),
-          'receive': PlutoCell(value: element.receivedamount.toString()),
-          'transaction': PlutoCell(value: element.transactionID.toString()),
+          // 'bank': PlutoCell(value: element.bankname),
+          // 'cheque': PlutoCell(value: element.chequeno),
+          // 'from': PlutoCell(value: element.fromaccount),
+          // 'to': PlutoCell(value: element.toaccount),
+          // 'method': PlutoCell(value: element.paymentmethod),
+          // 'receive': PlutoCell(value: element.receivedamount.toString()),
+          // 'transaction': PlutoCell(value: element.transactionID.toString()),
         },
       ));
     });
@@ -210,15 +251,15 @@ class homepage_provider with ChangeNotifier {
           'note': PlutoCell(value: element.note),
           'status': PlutoCell(value: status),
           'time': PlutoCell(
-              value: DateTime.fromMicrosecondsSinceEpoch(element.timestamp)
+              value: DateTime.fromMillisecondsSinceEpoch(element.timestamp)
                   .toString()),
-          'bank': PlutoCell(value: element.bankname),
-          'cheque': PlutoCell(value: element.chequeno),
-          'from': PlutoCell(value: element.fromaccount),
-          'to': PlutoCell(value: element.toaccount),
-          'method': PlutoCell(value: element.paymentmethod),
-          'receive': PlutoCell(value: element.receivedamount.toString()),
-          'transaction': PlutoCell(value: element.transactionID.toString()),
+          // 'bank': PlutoCell(value: element.bankname),
+          // 'cheque': PlutoCell(value: element.chequeno),
+          // 'from': PlutoCell(value: element.fromaccount),
+          // 'to': PlutoCell(value: element.toaccount),
+          // 'method': PlutoCell(value: element.paymentmethod),
+          // 'receive': PlutoCell(value: element.receivedamount.toString()),
+          // 'transaction': PlutoCell(value: element.transactionID.toString()),
         },
       ));
     });
@@ -281,7 +322,7 @@ class homepage_provider with ChangeNotifier {
       orderModel model = completedOrdermodel[index];
       completedOrdermodel.removeWhere((element) => element.orderid == orderid);
       completeOrdersGridList
-          .removeWhere((element) => element.cells['id'] == orderid);
+          .removeWhere((element) => element.cells['id'].toString() == orderid);
       notifyListeners();
       model.status = updateStatus;
       if (updateStatus == 0) {

@@ -103,20 +103,20 @@ class FileInfoCard extends StatelessWidget {
                               color: txtColor,
                             ),
                       ),
-                      Container(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          info.totalStorage!,
-                          maxLines: 1,
-                          textAlign: TextAlign.end,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText2!
-                              .copyWith(
-                                  color: txtColor, fontWeight: FontWeight.bold),
-                        ),
-                      ),
+                      // Container(
+                      //   alignment: Alignment.centerRight,
+                      //   child: Text(
+                      //     info.totalStorage!,
+                      //     maxLines: 1,
+                      //     textAlign: TextAlign.end,
+                      //     overflow: TextOverflow.ellipsis,
+                      //     style: Theme.of(context)
+                      //         .textTheme
+                      //         .bodyText2!
+                      //         .copyWith(
+                      //             color: txtColor, fontWeight: FontWeight.bold),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -144,7 +144,7 @@ class ProgressLine extends StatelessWidget {
           height: 5,
           decoration: BoxDecoration(
             color: color!.withOpacity(0.1),
-            borderRadius: BorderRadius.all(Radius.circular(10)),
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
           ),
         ),
         LayoutBuilder(
@@ -153,7 +153,7 @@ class ProgressLine extends StatelessWidget {
             height: 5,
             decoration: BoxDecoration(
               color: color,
-              borderRadius: BorderRadius.all(Radius.circular(10)),
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
             ),
           ),
         ),

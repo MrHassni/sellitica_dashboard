@@ -1,5 +1,7 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../constants.dart';
 
@@ -17,10 +19,10 @@ bool isValidPassword(String password) {
   return password.length == 6 || password.length > 6 ? true : false;
 }
 
-snackBar(String text, GlobalKey<ScaffoldState> _scaffoldKey) {
+snackBar(String text, BuildContext _scaffoldKey) {
   final snackBar = SnackBar(
-    content: Text('$text'),
-    duration: Duration(seconds: 1),
+    content: Text(text),
+    duration: const Duration(seconds: 1),
     // action: SnackBarAction(
     //   label: "Close",
     //   onPressed: () {
@@ -28,7 +30,13 @@ snackBar(String text, GlobalKey<ScaffoldState> _scaffoldKey) {
     //   },
     // ),
   );
-  _scaffoldKey.currentState!.showSnackBar(snackBar);
+  showTopSnackBar(
+    _scaffoldKey,
+    CustomSnackBar.success(
+      message: text,
+    ),
+  );
+  // _scaffoldKey.currentState!.showSnackBar(snackBar);
 }
 
 mShowNotification(
@@ -39,19 +47,19 @@ mShowNotification(
   Flushbar(
     title: heading,
     message: message,
-    duration: Duration(milliseconds: 1500),
+    duration: const Duration(milliseconds: 1500),
     backgroundColor: primaryColor,
     flushbarStyle: FlushbarStyle.FLOATING,
-    margin: EdgeInsets.all(8),
+    margin: const EdgeInsets.all(8),
     flushbarPosition: FlushbarPosition.TOP,
     borderRadius: BorderRadius.circular(8),
-    icon: Icon(
+    icon: const Icon(
       Icons.done_all,
       size: 28.0,
       color: Colors.white,
     ),
     leftBarIndicatorColor: Theme.of(context).hintColor,
-  )..show(context);
+  ).show(context);
 }
 
 mShowNotificationError(
@@ -62,17 +70,17 @@ mShowNotificationError(
   Flushbar(
     title: heading,
     message: message,
-    duration: Duration(milliseconds: 1500),
+    duration: const Duration(milliseconds: 1500),
     backgroundColor: Colors.red,
     flushbarStyle: FlushbarStyle.FLOATING,
-    margin: EdgeInsets.all(8),
+    margin: const EdgeInsets.all(8),
     flushbarPosition: FlushbarPosition.TOP,
     borderRadius: BorderRadius.circular(8),
-    icon: Icon(
+    icon: const Icon(
       Icons.close,
       size: 28.0,
       color: Colors.white,
     ),
     leftBarIndicatorColor: Theme.of(context).hintColor,
-  )..show(context);
+  ).show(context);
 }

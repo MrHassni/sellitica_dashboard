@@ -1,18 +1,23 @@
 import 'dart:async';
 
-import 'package:erp_aspire/Routes/Router.dart' as Router;
+import 'package:erp_aspire/Routes/Router.dart' as router;
+import 'package:erp_aspire/provider/company_provider.dart';
 import 'package:erp_aspire/widgets/side_menu.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 import '../constants.dart';
+import '../screens/loginscreen/loginscreen.dart';
 
 Dialog addnewDashboardDiaolog(BuildContext context) {
   return Dialog(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
     //this right here
-    child: Container(
+    child: SizedBox(
       height: 230.0,
       width: 300.0,
       child: Column(
@@ -23,8 +28,8 @@ Dialog addnewDashboardDiaolog(BuildContext context) {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  icon: Icon(Icons.cancel)),
-              SizedBox(
+                  icon: const Icon(Icons.cancel)),
+              const SizedBox(
                 width: 10,
               )
             ],
@@ -38,8 +43,8 @@ Dialog addnewDashboardDiaolog(BuildContext context) {
                 MaterialButton(
                   onPressed: () {
                     // Navigator.pop(context);
-                    Timer(Duration(milliseconds: 100), () {
-                      Navigator.pushReplacementNamed(context, Router.addshop);
+                    Timer(const Duration(milliseconds: 100), () {
+                      Navigator.pushReplacementNamed(context, router.addshop);
                     });
                   },
                   child: Padding(
@@ -53,18 +58,18 @@ Dialog addnewDashboardDiaolog(BuildContext context) {
                             width: 60,
                             child: SvgPicture.asset(
                                 "assets/icons/menu_store.svg")),
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
-                        Text("New Shop")
+                        const Text("New Shop")
                       ],
                     ),
                   ),
                 ),
                 MaterialButton(
                   onPressed: () {
-                    Timer(Duration(milliseconds: 100), () {
-                      Navigator.pushReplacementNamed(context, Router.adduser);
+                    Timer(const Duration(milliseconds: 100), () {
+                      Navigator.pushReplacementNamed(context, router.adduser);
                     });
                   },
                   child: Padding(
@@ -78,10 +83,10 @@ Dialog addnewDashboardDiaolog(BuildContext context) {
                             width: 60,
                             child: SvgPicture.asset(
                                 "assets/icons/menu_profile.svg")),
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
-                        Text("New User")
+                        const Text("New User")
                       ],
                     ),
                   ),
@@ -101,7 +106,7 @@ InputDecoration inputdecoration({required String label}) {
     labelText: label,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(10.0),
-      borderSide: BorderSide(
+      borderSide: const BorderSide(
         color: Colors.red,
         width: 2.0,
       ),
@@ -109,7 +114,10 @@ InputDecoration inputdecoration({required String label}) {
   );
 }
 
-SidebarX sidemenu(SidebarXController controller) {
+SidebarX sidemenu(
+  SidebarXController controller,
+  BuildContext ctx,
+) {
   return SidebarX(
     // controller: _controller,
     theme: SidebarXTheme(
@@ -152,14 +160,83 @@ SidebarX sidemenu(SidebarXController controller) {
       ),
       margin: EdgeInsets.only(right: 10),
     ),
-    footerDivider: divider,
+    // footerDivider: divider,
+    footerBuilder: (context, extended) {
+      return ListTile(
+        onTap: () {
+          showDialog<String>(
+            context: context,
+            builder: (BuildContext context) => AlertDialog(
+              title: const Text('Are you sure you want to Sign Out?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context, 'Cancel'),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    SharedPreferences pref =
+                        await SharedPreferences.getInstance();
+                    await FirebaseAuth.instance.signOut();
+                    pref.clear().then((value) => Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const loginscreen())));
+                  },
+                  child: const FittedBox(child: Text('Log Out')),
+                )
+              ],
+            ),
+          );
+        },
+        leading: const Icon(
+          Icons.exit_to_app_rounded,
+          color: Colors.black,
+        ),
+        title: controller.extended
+            ? const Text(
+                "Log Out",
+              )
+            : Container(),
+      );
+    },
+    footerDivider: SizedBox(
+      height: 150,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SvgPicture.asset(
+          logosvg,
+        ),
+      ),
+    ),
     headerBuilder: (context, extended) {
       return SizedBox(
         height: 150,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: SvgPicture.asset(
-            logosvg,
+          child: Column(
+            children: [
+              Provider.of<CompanyProvider>(context)
+                          .myCompanyData!
+                          .companyImgUrl ==
+                      null
+                  ? Container()
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(5),
+                      child: Image.network(
+                        Provider.of<CompanyProvider>(context)
+                            .myCompanyData!
+                            .companyImgUrl!,
+                        height: 90,
+                        fit: BoxFit.fitWidth,
+                      ),
+                    ),
+              FittedBox(
+                child: Text(Provider.of<CompanyProvider>(context)
+                    .myCompanyData!
+                    .companyName!),
+              )
+            ],
           ),
         ),
       );
@@ -171,10 +248,10 @@ SidebarX sidemenu(SidebarXController controller) {
       SidebarXItem(icon: Icons.person_add, label: 'Add User'),
       SidebarXItem(icon: Icons.add_box_sharp, label: 'Add Products'),
       SidebarXItem(icon: Icons.task, label: 'All Shops'),
-      SidebarXItem(icon: Icons.document_scanner, label: 'Document'),
-      SidebarXItem(icon: Icons.circle_notifications, label: 'Notification'),
-      SidebarXItem(icon: Icons.person, label: 'Profile'),
-      SidebarXItem(icon: Icons.settings, label: 'Settings'),
+      // SidebarXItem(icon: Icons.document_scanner, label: 'Document'),
+      // SidebarXItem(icon: Icons.circle_notifications, label: 'Notification'),
+      // SidebarXItem(icon: Icons.person, label: 'Profile'),
+      // SidebarXItem(icon: Icons.settings, label: 'Settings'),
     ],
   );
 }

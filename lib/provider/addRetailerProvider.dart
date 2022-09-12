@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:erp_aspire/Configs/Dbkeys.dart';
 import 'package:erp_aspire/Configs/Dbpaths.dart';
+import 'package:erp_aspire/provider/shopsProvider.dart';
 import 'package:erp_aspire/shared_prefrences/shared_prefrence_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -111,61 +111,125 @@ class addRetailerProvider with ChangeNotifier {
       required double lat,
       required double long,
       required String assignedTo}) async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    // String _companyId = pref.getString(Dbkeys.company)!;
     String? _companyId =
         await SharedPreferenceFunctions.getCompanyIDSharedPreference();
-    log(_companyId.toString());
-
     String? _email =
         await SharedPreferenceFunctions.getUserEmailSharedPreference();
-    log(_email.toString());
-    // String _email = pref.getString(Dbkeys.email)!;
     int _uploadTimestamp = DateTime.now().millisecondsSinceEpoch;
 
     String _id = _companyId! + "-" + '$_uploadTimestamp';
-    String uploadedPhotoUrl;
-
-    Reference _reference = FirebaseStorage.instance
-        .ref()
-        .child('images/${Path.basename(shopImage!.path)}');
-    await _reference
-        .putData(
-      await shopImage!.readAsBytes(),
-      SettableMetadata(contentType: 'image/png'),
-    )
-        .whenComplete(() async {
-      await _reference.getDownloadURL().then((value) async {
-        uploadedPhotoUrl = value;
-
-        // List<String> assignedTo = [_email!];
-        log(_email.toString());
-        await FirebaseFirestore.instance
-            .collection(DbPaths.companies)
-            .doc(_companyId)
-            .collection(DbPaths.shops)
-            .doc(_id)
-            .set({
-          Dbkeys.id: _id,
-          Dbkeys.url: uploadedPhotoUrl,
-          Dbkeys.shopName: shopName,
-          Dbkeys.ownerName: ownerName,
-          Dbkeys.cnic: cnic,
-          Dbkeys.phone: phone,
-          Dbkeys.address: address,
-          Dbkeys.type: "selecteItemType",
-          Dbkeys.typeId: "selecteItemId",
-          Dbkeys.addedby: _email,
-          Dbkeys.timestamp: _uploadTimestamp,
-          Dbkeys.approved: false,
-          Dbkeys.latlong: GeoPoint(lat, long),
-          Dbkeys.assignedto: [assignedTo],
-          Dbkeys.company: _companyId,
-        }, SetOptions(merge: true));
+    String? uploadedPhotoUrl;
+    if (shopImage != null) {
+      Reference _reference = FirebaseStorage.instance
+          .ref()
+          .child('images/${Path.basename(shopImage!.path)}');
+      await _reference
+          .putData(
+        await shopImage!.readAsBytes(),
+        SettableMetadata(contentType: 'image/png'),
+      )
+          .whenComplete(() async {
+        await _reference.getDownloadURL().then((value) async {
+          uploadedPhotoUrl = value;
+          await FirebaseFirestore.instance
+              .collection(DbPaths.companies)
+              .doc(_companyId)
+              .collection(DbPaths.shops)
+              .doc(_id)
+              .set({
+            Dbkeys.id: _id,
+            Dbkeys.url: uploadedPhotoUrl,
+            Dbkeys.shopName: shopName,
+            Dbkeys.ownerName: ownerName,
+            Dbkeys.cnic: cnic,
+            Dbkeys.phone: phone,
+            Dbkeys.address: address,
+            Dbkeys.type: "selecteItemType",
+            Dbkeys.typeId: "selecteItemId",
+            Dbkeys.addedby: _email,
+            Dbkeys.timestamp: _uploadTimestamp,
+            Dbkeys.approved: false,
+            Dbkeys.latlong: GeoPoint(lat, long),
+            Dbkeys.assignedto: [assignedTo],
+            Dbkeys.company: _companyId,
+            'lastVisit': 1
+          }, SetOptions(merge: true));
+        });
       });
+    } else {
+      await FirebaseFirestore.instance
+          .collection(DbPaths.companies)
+          .doc(_companyId)
+          .collection(DbPaths.shops)
+          .doc(_id)
+          .set({
+        Dbkeys.id: _id,
+        Dbkeys.url:
+            'https://cdn2.vectorstock.com/i/thumb-large/36/41/placeholder-blue-flat-design-long-shadow-glyph-vector-32173641.jpg',
+        Dbkeys.shopName: shopName,
+        Dbkeys.ownerName: ownerName,
+        Dbkeys.cnic: cnic,
+        Dbkeys.phone: phone,
+        Dbkeys.address: address,
+        Dbkeys.type: "selecteItemType",
+        Dbkeys.typeId: "selecteItemId",
+        Dbkeys.addedby: _email,
+        Dbkeys.timestamp: _uploadTimestamp,
+        Dbkeys.approved: false,
+        Dbkeys.latlong: GeoPoint(lat, long),
+        Dbkeys.assignedto: [assignedTo],
+        Dbkeys.company: _companyId,
+        'lastVisit': 1
+      }, SetOptions(merge: true));
+    }
+
+    ismShopsDataUploading(false);
+    ShopsProvider().getShopsDataList();
+  }
+
+  updateShopData(
+      {required String shopName,
+      required String ownerName,
+      required String cnic,
+      required String phone,
+      required String address,
+      required double lat,
+      required double long,
+      required String assignedTo,
+      required String url,
+      required int timeStamp,
+      required String id}) async {
+    String? _companyId =
+        await SharedPreferenceFunctions.getCompanyIDSharedPreference();
+    String? _email =
+        await SharedPreferenceFunctions.getUserEmailSharedPreference();
+
+    await FirebaseFirestore.instance
+        .collection(DbPaths.companies)
+        .doc(_companyId)
+        .collection(DbPaths.shops)
+        .doc(id)
+        .update({
+      Dbkeys.id: id,
+      Dbkeys.url: url,
+      Dbkeys.shopName: shopName,
+      Dbkeys.ownerName: ownerName,
+      Dbkeys.cnic: cnic,
+      Dbkeys.phone: phone,
+      Dbkeys.address: address,
+      Dbkeys.type: "selecteItemType",
+      Dbkeys.typeId: "selecteItemId",
+      Dbkeys.addedby: _email,
+      Dbkeys.timestamp: timeStamp,
+      Dbkeys.approved: false,
+      Dbkeys.latlong: GeoPoint(lat, long),
+      Dbkeys.assignedto: [assignedTo],
+      Dbkeys.company: _companyId,
+      'lastVisit': 1
     });
 
     ismShopsDataUploading(false);
+    ShopsProvider().getShopsDataList();
   }
 
   bool useCurrentLocation = true;
@@ -206,7 +270,6 @@ class addRetailerProvider with ChangeNotifier {
   Future<LatLng> mSetCurrentLocation() async {
     var position = await GeolocatorPlatform.instance.getCurrentPosition();
     latlng = LatLng(position.latitude, position.longitude);
-    print("LOG_D_CURRENTLOCATION ===========");
     return latlng!;
   }
 

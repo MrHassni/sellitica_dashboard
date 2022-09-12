@@ -37,7 +37,7 @@ List demoMyFiles = [
     svgSrc: "assets/icons/google_drive.svg",
     tagline: "Compare to 10 months before",
     totalStorage: "2897845 M",
-    color: Color(0xFFFFA113),
+    color: const Color(0xFFFFA113),
     percentage: 35,
   ),
   CloudStorageInfo(
@@ -47,7 +47,7 @@ List demoMyFiles = [
     svgSrc: "assets/icons/one_drive.svg",
     tagline: "Compare to 10 months before",
     totalStorage: "12389534 M",
-    color: Color(0xFFA4CDFF),
+    color: Colors.green,
     percentage: 10,
   ),
   CloudStorageInfo(
@@ -57,7 +57,7 @@ List demoMyFiles = [
     svgSrc: "assets/icons/drop_box.svg",
     totalStorage: "145345 M",
     tagline: "Compare to 10 months before",
-    color: Color(0xFF007EE5),
+    color: Colors.pink,
     percentage: 78,
   ),
 ];

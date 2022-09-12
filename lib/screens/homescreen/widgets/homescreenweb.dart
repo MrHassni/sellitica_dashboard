@@ -43,10 +43,10 @@ class _homescreenwebState extends State<homescreenweb> {
                         // _setPage(ClientPage());
                       },
                     ),
-                    Divider(),
+                    const Divider(),
                     ListTile(
-                      leading: Icon(Icons.multiline_chart),
-                      title: Text('Proyek'),
+                      leading: const Icon(Icons.multiline_chart),
+                      title: const Text('Proyek'),
                       onTap: () {
                         // _setPage(ProyekPage());
                       },
@@ -69,7 +69,7 @@ class _homescreenwebState extends State<homescreenweb> {
                         height: 100,
                         width: constraints.maxWidth,
                         child: Row(
-                          children: [
+                          children: const [
                             // MaterialButton(
                             //   onPressed: () {},
                             //   child: Text("Sign Up"),
@@ -106,14 +106,14 @@ class _homescreenwebState extends State<homescreenweb> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                            margin: EdgeInsets.only(
+                            margin: const EdgeInsets.only(
                                 left: 20, right: 10, top: 10, bottom: 20),
                             color: txtColor,
                             height: 300,
                             width: constraints.maxWidth / 1.69,
                           ),
                           Container(
-                            margin: EdgeInsets.only(
+                            margin: const EdgeInsets.only(
                                 left: 10, right: 20, top: 10, bottom: 20),
                             color: txtColor,
                             height: 300,
@@ -132,14 +132,14 @@ class _homescreenwebState extends State<homescreenweb> {
                             width: constraints.maxWidth / 3.45,
                           ),
                           Container(
-                            margin: EdgeInsets.only(
+                            margin: const EdgeInsets.only(
                                 left: 10, right: 10, top: 20, bottom: 10),
                             color: txtColor,
                             height: 300,
                             width: constraints.maxWidth / 3.45,
                           ),
                           Container(
-                            margin: EdgeInsets.only(
+                            margin: const EdgeInsets.only(
                                 left: 10, right: 20, top: 20, bottom: 10),
                             color: txtColor,
                             height: 300,
@@ -151,14 +151,14 @@ class _homescreenwebState extends State<homescreenweb> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                            margin: EdgeInsets.only(
+                            margin: const EdgeInsets.only(
                                 left: 20, right: 10, top: 10, bottom: 20),
                             color: txtColor,
                             height: 300,
                             width: constraints.maxWidth / 3.45,
                           ),
                           Container(
-                            margin: EdgeInsets.only(
+                            margin: const EdgeInsets.only(
                                 left: 10, right: 20, top: 10, bottom: 20),
                             color: txtColor,
                             height: 300,

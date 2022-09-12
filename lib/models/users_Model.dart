@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:erp_aspire/Configs/Dbkeys.dart';
 
 class users_Model {
@@ -97,5 +98,35 @@ class users_Model {
       "targetshops": targetshops,
       // "visitedshops": visitedshops,
     };
+  }
+
+  List<users_Model> dataListFromSnapshot(QuerySnapshot querySnapshot) {
+    return querySnapshot.docs.map((snapshot) {
+      final Map<String, dynamic> dataMap =
+          snapshot.data() as Map<String, dynamic>;
+      return users_Model(
+        email: dataMap[Dbkeys.email],
+        name: dataMap[Dbkeys.name],
+        companyId: dataMap[Dbkeys.company],
+        addedBy: dataMap['addedBy'] ?? '',
+        aboutMe: dataMap[Dbkeys.aboutMe],
+        accountstatus: dataMap[Dbkeys.accountstatus],
+        actionmessage: dataMap[Dbkeys.actionmessage],
+        authenticationType: dataMap[Dbkeys.authenticationType],
+        // bookings: parsedJson[Dbkeys.bookings],
+        currentDeviceID: dataMap[Dbkeys.currentDeviceID],
+        deviceDetails: dataMap[Dbkeys.deviceDetails],
+        id: dataMap[Dbkeys.id],
+        joinedOn: dataMap[Dbkeys.joinedOn],
+        lastLogin: dataMap[Dbkeys.lastLogin],
+        notificationTokens: dataMap[Dbkeys.notificationTokens],
+        // orders: parsedJson[Dbkeys.orders],
+        photoUrl: dataMap[Dbkeys.photoUrl],
+        // remainingshops: parsedJson[Dbkeys.remainingshops],
+        targetorders: dataMap[Dbkeys.targetorders],
+        targetshops: dataMap[Dbkeys.targetshops],
+        // visitedshops: parsedJson[Dbkeys.visitedshops],
+      );
+    }).toList();
   }
 }

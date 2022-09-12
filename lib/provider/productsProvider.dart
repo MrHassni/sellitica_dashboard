@@ -73,6 +73,7 @@ class ProductsProvider extends ChangeNotifier {
   }
 
   List<ProductsModel> allProducts = [];
+  late ProductsModel specificProductData;
 
   Future<void> mGetAllProducts() async {
     List<ProductsModel> allProductsData = [];
@@ -96,8 +97,10 @@ class ProductsProvider extends ChangeNotifier {
             .then((value) {
           for (int i = 0; i < value.docs.length; i++) {
             if (value.docs[i].data()[Dbkeys.status] == "delete") {
-            } else if (value.docs[i].data()[Dbkeys.addedby] ==
-                currentUserEmail) {
+            } else
+            // if (value.docs[i].data()[Dbkeys.addedby] ==
+            //   currentUserEmail)
+            {
               ProductsModel products = ProductsModel(
                   companyId: value.docs[i]['company'],
                   addedBy: value.docs[i]['addedby'],
@@ -114,6 +117,45 @@ class ProductsProvider extends ChangeNotifier {
             }
             allProducts = (allProductsData);
           }
+        });
+      } catch (e) {
+        log(e.toString());
+      }
+    }
+
+    notifyListeners();
+  }
+
+  List<ProductsModel> get allAvailableProducts => allProducts;
+
+  getSpecificProducts({required String id}) async {
+    String? company =
+        await SharedPreferenceFunctions.getCompanyIDSharedPreference();
+
+    if (company == null) {
+    } else {
+      try {
+        await FirebaseFirestore.instance
+            .collection(DbPaths.companies)
+            .doc(company)
+            .collection(DbPaths.products)
+            .doc(id)
+            .get()
+            .then((value) {
+          ProductsModel products = ProductsModel(
+              companyId: value['company'],
+              addedBy: value['addedby'],
+              productDescription: value['description'],
+              productQuantity: value['quantity'],
+              productPrice: value['price'],
+              productName: value['name'],
+              productStatus: value[Dbkeys.status],
+              id: value[Dbkeys.id],
+              productUploadDate: value['uploadTime'],
+              productLastUpdated: value['lastUpdateTime'],
+              photoUrl: value['url']);
+
+          specificProductData = products;
         });
       } catch (e) {
         log(e.toString());
@@ -148,7 +190,9 @@ class ProductsProvider extends ChangeNotifier {
         .doc(company)
         .collection(DbPaths.products)
         .doc(id)
-        .update({"status": "delete"});
+        .delete(
+            // {"status": "delete"}
+            );
 
     notifyListeners();
   }

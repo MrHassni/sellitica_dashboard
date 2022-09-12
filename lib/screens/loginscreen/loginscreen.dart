@@ -10,9 +10,12 @@ import 'package:provider/provider.dart';
 import 'package:quiver/strings.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+import '../../Provider/money_provider.dart';
 import '../../Utils/appConstants.dart';
 import '../../constants.dart';
 import '../../provider/authenticationProvider.dart';
+import '../../provider/company_provider.dart';
+import '../add_company.dart';
 
 class loginscreen extends StatefulWidget {
   const loginscreen({Key? key}) : super(key: key);
@@ -31,12 +34,22 @@ class _loginscreenState extends State<loginscreen> {
   }
 }
 
-class loginscreenMobile extends StatelessWidget {
+class loginscreenMobile extends StatefulWidget {
   loginscreenMobile({Key? key}) : super(key: key);
+
+  @override
+  State<loginscreenMobile> createState() => _loginscreenMobileState();
+}
+
+class _loginscreenMobileState extends State<loginscreenMobile> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   final _emailController = TextEditingController();
+
   final _passwordController = TextEditingController();
+
   bool _showPassword = false;
+
   @override
   Widget build(BuildContext context) {
     return Consumer<authenticationProvider>(
@@ -99,6 +112,7 @@ class loginscreenMobile extends StatelessWidget {
                             ? null
                             : "Please enter at-least 6 digit password",
                         controller: _passwordController,
+                        obscureText: _showPassword,
                         decoration: InputDecoration(
                           hintText: 'Enter your password',
                           // helperText: 'helper',
@@ -106,9 +120,9 @@ class loginscreenMobile extends StatelessWidget {
                           prefixIcon: const Icon(Icons.password),
                           suffixIcon: IconButton(
                             onPressed: () {
-                              // setState(() {
-                              //   _showPassword = !_showPassword;
-                              // });
+                              setState(() {
+                                _showPassword = !_showPassword;
+                              });
                             },
                             color:
                                 Theme.of(context).accentColor.withOpacity(0.4),
@@ -140,7 +154,7 @@ class loginscreenMobile extends StatelessWidget {
                                 ],
                               );
                               if (text == null) {
-                              } else if (text.length > 0) {
+                              } else if (text.isNotEmpty) {
                                 showOkAlertDialog(
                                   context: context,
                                   title: 'Email has been sent',
@@ -151,7 +165,7 @@ class loginscreenMobile extends StatelessWidget {
                                     .sendPasswordResetEmail(email: text[0]);
                               }
                             },
-                            child: Text("Forget password.?")),
+                            child: const Text("Forget password.?")),
                       )
                     ],
                   ),
@@ -186,16 +200,56 @@ class loginscreenMobile extends StatelessWidget {
                                     _passwordController.text)
                                 .then((value) async {
                               if (provider.isUserLoggedIn) {
-                                provider.mSaveUserLocal(_emailController.text,
-                                    _passwordController.text);
+                                // provider.mSaveUserLocal(_emailController.text,
+                                //     _passwordController.text);
                                 // _loginButtonController.success();
-                                Timer(const Duration(seconds: 1), () {
-                                  final _controller =
-                                      SidebarXController(selectedIndex: 0);
+                                // Timer(const Duration(seconds: 0), () {
+                                final _controller =
+                                    SidebarXController(selectedIndex: 0);
 
-                                  Navigator.pushNamed(context, Router.homepage,
+                                Provider.of<CompanyProvider>(context,
+                                        listen: false)
+                                    .getMyCompany()
+                                    .then((_) {
+                                  if (Provider.of<CompanyProvider>(context,
+                                              listen: false)
+                                          .myCompanyData !=
+                                      null) {
+                                    Provider.of<MoneyProvider>(context,
+                                            listen: false)
+                                        .getTransactions()
+                                        .then((_) {
+                                      Navigator.pushReplacementNamed(
+                                          context, Router.homepage,
+                                          arguments: _controller);
+                                    });
+                                  } else {
+                                    Provider.of<MoneyProvider>(context,
+                                            listen: false)
+                                        .getTransactions()
+                                        .then((_) {
+                                      Future.delayed(
+                                          const Duration(milliseconds: 800),
+                                          () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const AddCompany()));
+                                      });
+                                    });
+                                  }
+                                });
+
+                                Provider.of<MoneyProvider>(context,
+                                        listen: false)
+                                    .getTransactions()
+                                    .then((_) {
+                                  Navigator.pushReplacementNamed(
+                                      context, Router.homepage,
                                       arguments: _controller);
                                 });
+                                // });
                               } else {
                                 // _loginButtonController.error();
                                 // Timer(Duration(seconds: 1), () {

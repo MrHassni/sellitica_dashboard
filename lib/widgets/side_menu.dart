@@ -160,15 +160,15 @@ class body extends StatelessWidget {
       builder: (context, child) {
         switch (controller.selectedIndex) {
           case 0:
-            return Dashboardscreen ?? DashboardScreen();
+            return Dashboardscreen ?? const DashboardScreen();
           case 1:
-            return addshop ?? const addShop();
+            return addshop ?? const AddShop();
           case 2:
-            return adduser ?? const addUser();
+            return adduser ?? const AddUser();
           case 3:
             return addproducts ?? const AddProducts();
           case 4:
-            return allshops();
+            return const AllShops();
           default:
             return Text(
               'Not found page',

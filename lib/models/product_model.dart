@@ -1,23 +1,23 @@
 import 'package:erp_aspire/Configs/Dbkeys.dart';
 
 class ProductsModel {
-  final String productDescription;
-  final String productQuantity;
-  final String productPrice;
+  final String? productDescription;
+  final String? productQuantity;
+  final String? productPrice;
   // final int authenticationType;
   // final int bookings;
-  final String companyId;
-  final String addedBy;
-  final String productName;
-  final String productStatus;
+  final String? companyId;
+  final String? addedBy;
+  final String? productName;
+  final String? productStatus;
   // final Map<String, dynamic> deviceDetails;
   // final String email;
-  final String id;
-  final int productUploadDate;
-  final int productLastUpdated;
+  final String? id;
+  final int? productUploadDate;
+  final int? productLastUpdated;
   // final List notificationTokens;
   // final int orders;
-  final String photoUrl;
+  final String? photoUrl;
   // final String name;
   // final dynamic remainingshops;
   // final dynamic targetorders;

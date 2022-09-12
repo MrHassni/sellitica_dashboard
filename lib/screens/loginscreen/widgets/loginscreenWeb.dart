@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:erp_aspire/Routes/Router.dart' as Router;
 import 'package:erp_aspire/Utils/appConstants.dart';
 import 'package:erp_aspire/provider/authenticationProvider.dart';
+import 'package:erp_aspire/provider/company_provider.dart';
+import 'package:erp_aspire/screens/add_company.dart';
+import 'package:erp_aspire/screens/add_my_info.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -11,20 +15,50 @@ import 'package:provider/provider.dart';
 import 'package:quiver/strings.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+import '../../../Provider/money_provider.dart';
 import '../../../constants.dart';
+import '../../../provider/addRetailerProvider.dart';
+import '../../../provider/homeProvider.dart';
+import '../../../provider/userProvider.dart';
 
-class loginscreenWeb extends StatelessWidget {
+class loginscreenWeb extends StatefulWidget {
   const loginscreenWeb({Key? key}) : super(key: key);
+
+  @override
+  State<loginscreenWeb> createState() => _loginscreenWebState();
+}
+
+class _loginscreenWebState extends State<loginscreenWeb> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _showPassword = true;
+
+  addRetailerProvider? retailerProvider;
+  userProvider? userprovider;
+  homepage_provider? homeprovider;
+  CompanyProvider? companyProvider;
+
+  mInIt(BuildContext context) {
+    homeprovider = Provider.of<homepage_provider>(context, listen: false);
+    retailerProvider = Provider.of<addRetailerProvider>(context, listen: false);
+    userprovider = Provider.of<userProvider>(context, listen: false);
+    companyProvider = Provider.of<CompanyProvider>(context, listen: false);
+
+    homeprovider!.getOrdersDataList();
+    retailerProvider!.mGetLocationPermission().then((value) {
+      retailerProvider!.mSetCurrentLocation();
+    });
+    companyProvider!.getMyCompany();
+    userprovider!.mGetUserDetails().then((value) {
+      userprovider!.mGetAllUsers();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-
-    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-    final _emailController = TextEditingController();
-    final _passwordController = TextEditingController();
-    bool _showPassword = false;
 
     return Consumer<authenticationProvider>(
         builder: (context, provider, child) {
@@ -42,7 +76,7 @@ class loginscreenWeb extends StatelessWidget {
             color: secondaryColor,
             margin: const EdgeInsets.symmetric(vertical: 60, horizontal: 100),
             child: Container(
-              margin: EdgeInsets.symmetric(vertical: 60, horizontal: 50),
+              margin: const EdgeInsets.symmetric(vertical: 60, horizontal: 50),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -81,7 +115,7 @@ class loginscreenWeb extends StatelessWidget {
                                 hintText: 'Enter your email address',
                                 // helperText: 'helper',
                                 labelText: 'Email',
-                                prefixIcon: Icon(Icons.email),
+                                prefixIcon: const Icon(Icons.email),
                                 // suffixIcon: Icon(Icons.park),
                                 // counterText: 'counter',
                                 border: OutlineInputBorder(
@@ -98,17 +132,17 @@ class loginscreenWeb extends StatelessWidget {
                               validator: (input) => isValidPassword(input!)
                                   ? null
                                   : "Please enter at-least 6 digit password",
+                              obscureText: _showPassword,
                               controller: _passwordController,
                               decoration: InputDecoration(
                                 hintText: 'Enter your password',
-                                // helperText: 'helper',
                                 labelText: 'Password',
-                                prefixIcon: Icon(Icons.password),
+                                prefixIcon: const Icon(Icons.password),
                                 suffixIcon: IconButton(
                                   onPressed: () {
-                                    // setState(() {
-                                    //   _showPassword = !_showPassword;
-                                    // });
+                                    setState(() {
+                                      _showPassword = !_showPassword;
+                                    });
                                   },
                                   color: Theme.of(context)
                                       .accentColor
@@ -142,7 +176,7 @@ class loginscreenWeb extends StatelessWidget {
                                       ],
                                     );
                                     if (text == null) {
-                                    } else if (text.length > 0) {
+                                    } else if (text.isNotEmpty) {
                                       showOkAlertDialog(
                                         context: context,
                                         title: 'Email has been sent',
@@ -154,105 +188,166 @@ class loginscreenWeb extends StatelessWidget {
                                               email: text[0]);
                                     }
                                   },
-                                  child: Text("Forget password.?")),
+                                  child: const Text("Forget password.?")),
                             )
                           ],
                         ),
-                        SizedBox(
-                          width: (width / 3) - 100,
-                          height: 45,
-                          child: MaterialButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            padding: EdgeInsets.all(8.0),
-                            color: primaryColor,
-                            onPressed: () {
-                              if (isBlank(_emailController.text) ||
-                                  isBlank(_passwordController.text)) {
-                                // // _loginButtonController.reset();
-                                // snackBar("Please Fill All Input Fields",
-                                //     _scaffoldKey);
-
-                                mShowNotificationError(
-                                    heading: 'Warning',
-                                    message: "Please Fill All Input Fields",
-                                    context: context);
-                              } else {
-                                bool emailValid =
-                                    isEmailValidae(_emailController.text);
-                                bool passcodeValid =
-                                    isValidPassword(_passwordController.text);
-
-                                if (emailValid && passcodeValid) {
-                                  provider
-                                      .loginUser(_emailController.text,
-                                          _passwordController.text)
-                                      .then((value) {
-                                    if (provider.isUserLoggedIn) {
-                                      provider.mSaveUserLocal(
-                                          _emailController.text,
-                                          _passwordController.text);
-                                      // _loginButtonController.success();
-                                      Timer(Duration(seconds: 1), () {
-                                        final _controller = SidebarXController(
-                                            selectedIndex: 0);
-
-                                        Navigator.pushNamed(
-                                            context, Router.homepage,
-                                            arguments: _controller);
-                                      });
-                                    } else {
-                                      // _loginButtonController.error();
-                                      // Timer(Duration(seconds: 1), () {
-                                      //   _loginButtonController.reset();
-                                      // });
-                                      // snackBar(provider.userLoginMessage,
+                        provider.isUserLoggedIn
+                            ? const Align(
+                                alignment: Alignment.bottomRight,
+                                child: SizedBox(
+                                    height: 35,
+                                    width: 35,
+                                    child: CircularProgressIndicator()),
+                              )
+                            : SizedBox(
+                                width: (width / 3) - 100,
+                                height: 45,
+                                child: MaterialButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                  ),
+                                  padding: const EdgeInsets.all(8.0),
+                                  color: primaryColor,
+                                  onPressed: () {
+                                    if (isBlank(_emailController.text) ||
+                                        isBlank(_passwordController.text)) {
+                                      // // _loginButtonController.reset();
+                                      // snackBar("Please Fill All Input Fields",
                                       //     _scaffoldKey);
+
                                       mShowNotificationError(
                                           heading: 'Warning',
                                           message:
-                                              "${provider.userLoginMessage}",
+                                              "Please Fill All Input Fields",
                                           context: context);
+                                    } else {
+                                      bool emailValid =
+                                          isEmailValidae(_emailController.text);
+                                      bool passcodeValid = isValidPassword(
+                                          _passwordController.text);
+
+                                      if (emailValid && passcodeValid) {
+                                        provider
+                                            .loginUser(_emailController.text,
+                                                _passwordController.text)
+                                            .then((value) {
+                                          if (provider.isUserLoggedIn) {
+                                            provider.mSaveUserLocal(
+                                                _emailController.text,
+                                                _passwordController.text);
+
+                                            Provider.of<userProvider>(context,
+                                                    listen: false)
+                                                .isUserAvailable()
+                                                .then((_) {
+                                              if (Provider.of<userProvider>(
+                                                      context,
+                                                      listen: false)
+                                                  .userAvailable) {
+                                                mInIt(context);
+                                                Provider.of<userProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .mGetUserDetails()
+                                                    .then((value) {
+                                                  Provider.of<userProvider>(
+                                                          context,
+                                                          listen: false)
+                                                      .current_user;
+
+                                                  Provider.of<homepage_provider>(
+                                                          context,
+                                                          listen: false)
+                                                      .getOrdersDataList()
+                                                      .then((_) {
+                                                    Provider.of<CompanyProvider>(
+                                                            context,
+                                                            listen: false)
+                                                        .getMyCompany()
+                                                        .then((_) {
+                                                      Timer(
+                                                          const Duration(
+                                                              seconds: 1), () {
+                                                        final _controller =
+                                                            SidebarXController(
+                                                                selectedIndex:
+                                                                    0);
+                                                        if (companyProvider!
+                                                                .myCompanyData !=
+                                                            null) {
+                                                          Provider.of<MoneyProvider>(
+                                                                  context,
+                                                                  listen: false)
+                                                              .getTransactions()
+                                                              .then((_) {
+                                                            Navigator.pushNamed(
+                                                                context,
+                                                                Router.homepage,
+                                                                arguments:
+                                                                    _controller);
+                                                          });
+                                                        } else {
+                                                          Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          const AddCompany()));
+                                                        }
+                                                      });
+                                                    });
+                                                  });
+                                                });
+                                              } else {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            const AddMyInfo()));
+                                              }
+                                            });
+                                          } else {
+                                            mShowNotificationError(
+                                                heading: 'Warning',
+                                                message:
+                                                    provider.userLoginMessage,
+                                                context: context);
+                                          }
+                                        }).onError((error, stackTrace) {
+                                          log(error.toString() +
+                                              '        ]]     ' +
+                                              stackTrace.toString());
+                                          mShowNotificationError(
+                                              heading: 'Error',
+                                              message:
+                                                  "Something went wrong please try again" +
+                                                      error.toString() +
+                                                      '      ' +
+                                                      stackTrace.toString(),
+                                              context: context);
+                                        });
+                                      } else {
+                                        mShowNotificationError(
+                                            heading: 'Warning',
+                                            message:
+                                                "Please enter valid email address and passowrd",
+                                            context: context);
+                                        // snackBar(
+                                        //     "Please enter valid email address and passowrd",
+                                        //     _scaffoldKey);
+                                        // Timer(Duration(seconds: 1), () {
+                                        //   _loginButtonController.reset();
+                                        // });
+                                      }
                                     }
-                                  }).onError((error, stackTrace) {
-                                    // _loginButtonController.error();
-                                    // snackBar(
-                                    //     "Something went wrong please try again",
-                                    //     _scaffoldKey);
-
-                                    mShowNotificationError(
-                                        heading: 'Error',
-                                        message:
-                                            "Something went wrong please try again",
-                                        context: context);
-
-                                    // Timer(Duration(seconds: 1), () {
-                                    //   _loginButtonController.reset();
-                                    // });
-                                  });
-                                } else {
-                                  // _loginButtonController.error();
-                                  mShowNotificationError(
-                                      heading: 'Warning',
-                                      message:
-                                          "Please enter valid email address and passowrd",
-                                      context: context);
-                                  // snackBar(
-                                  //     "Please enter valid email address and passowrd",
-                                  //     _scaffoldKey);
-                                  // Timer(Duration(seconds: 1), () {
-                                  //   _loginButtonController.reset();
-                                  // });
-                                }
-                              }
-                            },
-                            child: Text(
-                              "Login",
-                              style: TextStyle(color: bgColor),
-                            ),
-                          ),
-                        )
+                                  },
+                                  child: Text(
+                                    "Login",
+                                    style: TextStyle(color: bgColor),
+                                  ),
+                                ),
+                              )
                       ],
                     ),
                   )

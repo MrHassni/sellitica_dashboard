@@ -6,11 +6,17 @@
 import 'package:erp_aspire/Configs/Dbkeys.dart';
 import 'package:erp_aspire/Routes/Router.dart' as Router;
 import 'package:erp_aspire/Utils/DbKeys.dart';
+import 'package:erp_aspire/provider/company_provider.dart';
+import 'package:erp_aspire/screens/add_company.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sidebarx/sidebarx.dart';
 
+import '../../Provider/money_provider.dart';
 import '../../constants.dart';
+import '../../provider/homeProvider.dart';
+import '../../provider/shopsProvider.dart';
 
 class splashScreen extends StatefulWidget {
   const splashScreen({Key? key}) : super(key: key);
@@ -83,22 +89,53 @@ class _splashScreenState extends State<splashScreen> {
   // late modulesAndReportsProvider reportsProvider;
 
   setInitial(BuildContext context) async {
+    Provider.of<ShopsProvider>(context, listen: false).getShopsDataList();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.containsKey(Dbkeys.email)) {
-      if (prefs.getBool(isUserLoggedInLocal)!) {
-        Future.delayed(Duration(milliseconds: 800), () {
-          final _controller = SidebarXController(selectedIndex: 0);
-          Navigator.pushReplacementNamed(context, Router.homepage,
-              arguments: _controller);
-        });
-      } else {
-        Future.delayed(Duration(milliseconds: 800), () {
-          Navigator.pushReplacementNamed(context, Router.login);
-        });
-      }
+    if (prefs.getBool(isUserLoggedInLocal) != null &&
+        prefs.getBool(isUserLoggedInLocal)! == true &&
+        prefs.containsKey(Dbkeys.email)) {
+      Provider.of<CompanyProvider>(context, listen: false)
+          .getMyCompany()
+          .then((_) {
+        if (Provider.of<CompanyProvider>(context, listen: false)
+                    .myCompanyData!
+                    .companyName !=
+                '' ||
+            Provider.of<CompanyProvider>(context, listen: false)
+                    .myCompanyData!
+                    .companyId !=
+                '' ||
+            Provider.of<CompanyProvider>(context, listen: false)
+                    .myCompanyData!
+                    .companyImgUrl !=
+                '') {
+          Provider.of<MoneyProvider>(context, listen: false)
+              .getTransactions()
+              .then((_) {
+            Future.delayed(const Duration(milliseconds: 800), () {
+              final _controller = SidebarXController(selectedIndex: 0);
+
+              Provider.of<homepage_provider>(context, listen: false)
+                  .getOrdersDataList()
+                  .then((_) {
+                Navigator.pushReplacementNamed(context, Router.homepage,
+                    arguments: _controller);
+              });
+            });
+          });
+        } else {
+          Provider.of<MoneyProvider>(context, listen: false)
+              .getTransactions()
+              .then((_) {
+            Future.delayed(const Duration(milliseconds: 800), () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const AddCompany()));
+            });
+          });
+        }
+      });
     } else {
-      // pro.mLoginApi();
-      Future.delayed(Duration(milliseconds: 800), () {
+      Future.delayed(const Duration(milliseconds: 800), () {
         Navigator.pushReplacementNamed(context, Router.login);
       });
     }

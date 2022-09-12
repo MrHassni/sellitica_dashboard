@@ -42,6 +42,10 @@ class authenticationProvider with ChangeNotifier {
     }
   }
 
+  done() {
+    isUserLoggedIn = false;
+  }
+
   Future<void> loginUser(String email, String password) async {
     try {
       UserCredential userCredential = await FirebaseAuth.instance

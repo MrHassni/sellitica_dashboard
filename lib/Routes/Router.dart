@@ -25,16 +25,16 @@ Route<dynamic> generateRoute(RouteSettings settings) {
           builder: (_) =>
               MainScreen(controller: settings.arguments as SidebarXController));
     case login:
-      return MaterialPageRoute(builder: (_) => loginscreen());
+      return MaterialPageRoute(builder: (_) => const loginscreen());
 
     case addshop:
-      return MaterialPageRoute(builder: (_) => addShop());
+      return MaterialPageRoute(builder: (_) => const AddShop());
 
     case adduser:
-      return MaterialPageRoute(builder: (_) => addUser());
+      return MaterialPageRoute(builder: (_) => const AddUser());
 
     case salesmaps:
-      return MaterialPageRoute(builder: (_) => sales_maps());
+      return MaterialPageRoute(builder: (_) => const sales_maps());
     case addproducts:
       return MaterialPageRoute(builder: (_) => const AddProducts());
     case pendingorders:

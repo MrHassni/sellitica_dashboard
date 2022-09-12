@@ -8,7 +8,7 @@ class homescreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return screentypeLayout(
-      web: homescreenweb(),
+      web: const homescreenweb(),
       mobile: Container(),
     );
   }

@@ -6,7 +6,6 @@ import 'package:erp_aspire/Utils/Utils.dart';
 import 'package:erp_aspire/Utils/appConstants.dart';
 import 'package:erp_aspire/provider/addRetailerProvider.dart';
 import 'package:erp_aspire/provider/userProvider.dart';
-import 'package:erp_aspire/screens/dashboard/components/header.dart';
 import 'package:erp_aspire/widgets/regularWidgets.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -17,15 +16,17 @@ import 'package:rounded_loading_button/rounded_loading_button.dart';
 
 import '../../constants.dart';
 import '../../responsive.dart';
+import '../dashboard/components/header.dart';
+import '../main/components/side_menu.dart';
 
-class addShop extends StatefulWidget {
-  const addShop({Key? key}) : super(key: key);
+class AddShop extends StatefulWidget {
+  const AddShop({Key? key}) : super(key: key);
 
   @override
-  _addShopState createState() => _addShopState();
+  _AddShopState createState() => _AddShopState();
 }
 
-class _addShopState extends State<addShop> {
+class _AddShopState extends State<AddShop> {
   GoogleMapController? mapController;
 
   void _onMapCreated(GoogleMapController controller) {
@@ -38,7 +39,6 @@ class _addShopState extends State<addShop> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getAvailableUsersData();
   }
@@ -73,441 +73,344 @@ class _addShopState extends State<addShop> {
 
   @override
   Widget build(BuildContext context) {
-    // final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
-    return Container(
-      decoration: const BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20))),
-      margin: const EdgeInsets.all(20),
-      child: Scaffold(
-        // backgroundColor: Colors.white,
-        body: Container(
-          height: height,
-          decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(20))),
-          child: SafeArea(
-              child: Consumer2<addRetailerProvider, userProvider>(
-                  builder: (context, provider, userprovider, _child) =>
-                      SingleChildScrollView(
-                        padding: const EdgeInsets.all(defaultPadding),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            const Header(
-                              title: 'Add Retailer/ Shop',
-                            ),
-                            const SizedBox(height: defaultPadding),
-                            ///////FORM WIDTH WILL BE FULL IN MOBILE VIEW AND HALF IN THE DESKTOP VIEW.
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 5,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      (provider.shopImage == null)
-                                          ? SizedBox(
-                                              height: 150,
-                                              width: 150,
-                                              child: Image.asset(
-                                                  "assets/images/placeholder.png"))
-                                          : (kIsWeb)
-                                              ? SizedBox(
-                                                  height: 150,
-                                                  width: 200,
-                                                  child: Image.memory(
-                                                      provider.webImage))
-                                              : SizedBox(
-                                                  height: 150,
-                                                  width: 200,
-                                                  child: Image.memory(
-                                                      provider.webImage)),
-                                      const SizedBox(
-                                        height: 20,
-                                        width: double.infinity,
-                                      ),
-                                      SizedBox(
-                                        width: 100,
-                                        height: 30,
-                                        child: MaterialButton(
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          color: primaryColor,
-                                          onPressed: () => uploadImage(),
-                                          child: const Text(
-                                            "Pick image",
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          ),
+    return Scaffold(
+      appBar: width < 1100
+          ? AppBar(
+              foregroundColor: Colors.black,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: const Text('Add Retailer/ Shop'),
+            )
+          : PreferredSize(
+              child: Container(), preferredSize: const Size.fromHeight(0)),
+      drawer: const SideMenu(),
+      // backgroundColor: Colors.white,
+      body: Container(
+        margin: const EdgeInsets.all(20),
+        height: height,
+        decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+        child: SafeArea(
+            child: Consumer2<addRetailerProvider, userProvider>(
+                builder: (context, provider, userprovider, _child) =>
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.all(defaultPadding),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          width < 1100
+                              ? Container()
+                              : const Header(
+                                  title: 'Add Retailer/ Shop',
+                                ),
+                          const SizedBox(height: defaultPadding),
+                          ///////FORM WIDTH WILL BE FULL IN MOBILE VIEW AND HALF IN THE DESKTOP VIEW.
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 5,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    (provider.shopImage == null)
+                                        ? SizedBox(
+                                            height: 150,
+                                            width: 150,
+                                            child: Image.asset(
+                                                "assets/images/placeholder.png"))
+                                        : (kIsWeb)
+                                            ? SizedBox(
+                                                height: 150,
+                                                width: 200,
+                                                child: Image.memory(
+                                                    provider.webImage))
+                                            : SizedBox(
+                                                height: 150,
+                                                width: 200,
+                                                child: Image.memory(
+                                                    provider.webImage)),
+                                    const SizedBox(
+                                      height: 20,
+                                      width: double.infinity,
+                                    ),
+                                    SizedBox(
+                                      width: 100,
+                                      height: 30,
+                                      child: MaterialButton(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        color: primaryColor,
+                                        onPressed: () => uploadImage(),
+                                        child: const Text(
+                                          "Pick image",
+                                          style: TextStyle(color: Colors.white),
                                         ),
                                       ),
-                                      const SizedBox(height: defaultPadding),
-                                      TextFormField(
-                                        controller: _shopNameController,
-                                        decoration: inputdecoration(
-                                            label:
-                                                'Company/ Organization Name'),
-                                      ),
-                                      const SizedBox(height: defaultPadding),
-                                      TextFormField(
-                                        controller: _ownerNameController,
-                                        decoration: inputdecoration(
-                                            label: 'Owner Name'),
-                                      ),
-                                      const SizedBox(height: defaultPadding),
-                                      TextFormField(
-                                          controller:
-                                              provider.addressController,
-                                          decoration: inputdecoration(
-                                              label: 'Address')),
-                                      const SizedBox(height: defaultPadding),
-                                      TextFormField(
-                                          keyboardType: TextInputType.number,
-                                          inputFormatters: [
-                                            Utils.phonemaskFormatter
-                                          ],
-                                          autovalidateMode: AutovalidateMode
-                                              .onUserInteraction,
-                                          validator: (input) => Utils
-                                                  .isValidPhone(input!)
-                                              ? null
-                                              : "Please enter correct phone #",
-                                          controller: _phoneController,
-                                          decoration:
-                                              inputdecoration(label: 'Phone')),
-                                      const SizedBox(height: defaultPadding),
-                                      TextFormField(
+                                    ),
+                                    const SizedBox(height: defaultPadding),
+                                    TextFormField(
+                                      controller: _shopNameController,
+                                      decoration: inputdecoration(
+                                          label: 'Company/ Organization Name'),
+                                    ),
+                                    const SizedBox(height: defaultPadding),
+                                    TextFormField(
+                                      controller: _ownerNameController,
+                                      decoration:
+                                          inputdecoration(label: 'Owner Name'),
+                                    ),
+                                    const SizedBox(height: defaultPadding),
+                                    TextFormField(
+                                        controller: provider.addressController,
+                                        decoration:
+                                            inputdecoration(label: 'Address')),
+                                    const SizedBox(height: defaultPadding),
+                                    TextFormField(
                                         keyboardType: TextInputType.number,
                                         inputFormatters: [
-                                          Utils.cnicmaskFormatter
+                                          Utils.phonemaskFormatter
                                         ],
                                         autovalidateMode:
                                             AutovalidateMode.onUserInteraction,
-                                        validator: (input) =>
-                                            Utils.isValidCnic(input!)
-                                                ? null
-                                                : "Please enter correct cnic #",
-                                        controller: _cnicController,
-                                        decoration: inputdecoration(
-                                            label: 'Cnic (optional)'),
-                                      ),
-                                      const SizedBox(height: defaultPadding),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 4),
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            border:
-                                                Border.all(color: Colors.grey)),
-                                        child: DropdownButtonHideUnderline(
-                                          child: DropdownButton2(
-                                            itemPadding:
-                                                const EdgeInsets.symmetric(
-                                                    vertical: 10,
-                                                    horizontal: 5),
-                                            isExpanded: true,
-                                            hint: Text(
-                                              'Select Sales Man',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color:
-                                                    Theme.of(context).hintColor,
-                                              ),
+                                        validator: (input) => Utils
+                                                .isValidPhone(input!)
+                                            ? null
+                                            : "Please enter correct phone #",
+                                        controller: _phoneController,
+                                        decoration:
+                                            inputdecoration(label: 'Phone')),
+                                    const SizedBox(height: defaultPadding),
+                                    TextFormField(
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [
+                                        Utils.cnicmaskFormatter
+                                      ],
+                                      autovalidateMode:
+                                          AutovalidateMode.onUserInteraction,
+                                      validator: (input) =>
+                                          Utils.isValidCnic(input!)
+                                              ? null
+                                              : "Please enter correct cnic #",
+                                      controller: _cnicController,
+                                      decoration: inputdecoration(
+                                          label: 'Cnic (optional)'),
+                                    ),
+                                    const SizedBox(height: defaultPadding),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border:
+                                              Border.all(color: Colors.grey)),
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton2(
+                                          itemPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 10, horizontal: 5),
+                                          isExpanded: true,
+                                          hint: Text(
+                                            'Select Sales Man',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color:
+                                                  Theme.of(context).hintColor,
                                             ),
-                                            items: items
-                                                .map((item) =>
-                                                    DropdownMenuItem<String>(
-                                                      value: item,
-                                                      child: Text(
-                                                        item,
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
-                                                        ),
+                                          ),
+                                          items: items
+                                              .map((item) =>
+                                                  DropdownMenuItem<String>(
+                                                    value: item,
+                                                    child: Text(
+                                                      item,
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
                                                       ),
-                                                    ))
-                                                .toList(),
-                                            value: selectedValue,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                selectedValue = value as String;
-                                              });
-                                            },
-                                            buttonHeight: 40,
-                                            buttonWidth: 200,
-                                            itemHeight: 40,
-                                            dropdownMaxHeight: 200,
-                                            searchController:
-                                                textEditingController,
-                                            searchInnerWidget: Padding(
-                                              padding: const EdgeInsets.only(
-                                                top: 8,
-                                                bottom: 4,
-                                                right: 8,
-                                                left: 8,
-                                              ),
-                                              child: TextFormField(
-                                                controller:
-                                                    textEditingController,
-                                                decoration: InputDecoration(
-                                                  isDense: true,
-                                                  contentPadding:
-                                                      const EdgeInsets
-                                                          .symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 8,
-                                                  ),
-                                                  hintText:
-                                                      'Search for an item...',
-                                                  hintStyle: const TextStyle(
-                                                      fontSize: 12),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                  ),
+                                                    ),
+                                                  ))
+                                              .toList(),
+                                          value: selectedValue,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              selectedValue = value as String;
+                                            });
+                                          },
+                                          buttonHeight: 40,
+                                          buttonWidth: 200,
+                                          itemHeight: 40,
+                                          dropdownMaxHeight: 200,
+                                          searchController:
+                                              textEditingController,
+                                          searchInnerWidget: Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 8,
+                                              bottom: 4,
+                                              right: 8,
+                                              left: 8,
+                                            ),
+                                            child: TextFormField(
+                                              controller: textEditingController,
+                                              decoration: InputDecoration(
+                                                isDense: true,
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 8,
+                                                ),
+                                                hintText:
+                                                    'Search for an item...',
+                                                hintStyle: const TextStyle(
+                                                    fontSize: 12),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
                                                 ),
                                               ),
                                             ),
-                                            searchMatchFn: (item, searchValue) {
-                                              return (item.value
-                                                  .toString()
-                                                  .contains(searchValue));
-                                            },
-                                            //This to clear the search value when you close the menu
-                                            onMenuStateChange: (isOpen) {
-                                              if (!isOpen) {
-                                                textEditingController.clear();
-                                              }
-                                            },
                                           ),
+                                          searchMatchFn: (item, searchValue) {
+                                            return (item.value
+                                                .toString()
+                                                .contains(searchValue));
+                                          },
+                                          //This to clear the search value when you close the menu
+                                          onMenuStateChange: (isOpen) {
+                                            if (!isOpen) {
+                                              textEditingController.clear();
+                                            }
+                                          },
                                         ),
                                       ),
-                                      const SizedBox(height: defaultPadding),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          SizedBox(
-                                            width: 150,
-                                            child: RoundedLoadingButton(
-                                              borderRadius: 10,
-                                              controller: _btnController,
-                                              color: primaryColor,
-                                              onPressed: () async {
-                                                log(provider.latlng!
-                                                    .toString());
-
-                                                provider.ismShopsDataUploading(
-                                                    true);
-
-                                                bool isCnicValid =
-                                                    _cnicController.text.isEmpty
-                                                        ? true
-                                                        : Utils.isValidCnic(
-                                                            _cnicController
-                                                                .text);
-
-                                                bool isphoneValid =
-                                                    Utils.isValidPhone(
-                                                        _phoneController.text);
-
-                                                // bool isLocationFormatChosen =
-                                                //     provider.useCurrentLocation
-                                                //         ? true
-                                                //         : provider
-                                                //                 .isShopLocationSelectedFromMap
-                                                //             ? true
-                                                //             : false;
-
-                                                bool isReadyToUpload =
-                                                    _shopNameController
-                                                            .text.isNotEmpty &&
-                                                        _ownerNameController
-                                                            .text.isNotEmpty &&
-                                                        provider
-                                                            .addressController
-                                                            .text
-                                                            .isNotEmpty &&
-                                                        isCnicValid &&
-                                                        // isLocationFormatChosen &&
-                                                        isphoneValid &&
-                                                        selectedValue != null &&
-                                                        provider.shopImage !=
-                                                            null;
-
-                                                if (isReadyToUpload) {
-                                                  await provider.postUploadShopData(
-                                                      shopName:
-                                                          _shopNameController
-                                                              .text,
-                                                      cnic:
-                                                          _cnicController.text,
-                                                      ownerName:
-                                                          _ownerNameController
-                                                              .text,
-                                                      phone:
-                                                          _phoneController.text,
-                                                      address: provider
-                                                          .addressController
-                                                          .text,
-                                                      lat: provider
-                                                          .latlng!.latitude,
-                                                      long: provider
-                                                          .latlng!.longitude,
-                                                      assignedTo:
-                                                          selectedValue!);
-
-                                                  // addRetailerProvider.ismShopsDataUploading(false);
-                                                  // Utils.toast("Done");
-                                                  // Navigator.pop(context);
-                                                  // print("LOG_D UPLOADED");
-                                                  mShowNotification(
-                                                      heading: "Success",
-                                                      context: context,
-                                                      message:
-                                                          "Shop added successfully");
-                                                  _btnController.success();
-                                                  Provider.of<userProvider>(
-                                                          context,
-                                                          listen: false)
-                                                      .mGetAllUsers();
-                                                  Timer(
-                                                      const Duration(
-                                                          milliseconds: 600),
-                                                      () {
-                                                    _btnController.reset();
-                                                  });
-                                                } else {
-                                                  _btnController.error();
-                                                  Timer(
-                                                      const Duration(
-                                                          milliseconds: 600),
-                                                      () {
-                                                    _btnController.reset();
-                                                  });
-
-                                                  // Utils.toast(
-                                                  //     "Please Fill all fields");
-                                                  mShowNotificationError(
-                                                      heading: "Warning",
-                                                      context: context,
-                                                      message:
-                                                          "Please provide required data");
-                                                  provider
-                                                      .ismShopsDataUploading(
-                                                          false);
-                                                }
-                                              },
-                                              child: const Padding(
-                                                padding: EdgeInsets.all(8.0),
-                                                child: Text(
-                                                  "Upload",
-                                                  style: TextStyle(
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (!Responsive.isMobile(context))
-                                  const SizedBox(width: defaultPadding),
-                                // On Mobile means if the screen is less than 850 we dont want to show it
-                                if (!Responsive.isMobile(context))
-                                  Expanded(
-                                    flex: 2,
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    ),
+                                    const SizedBox(height: defaultPadding),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
-                                        const Text(
-                                          "Choose Shop location",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: primaryColor),
-                                        ),
-                                        Card(
-                                          elevation: 3,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            child: SizedBox(
-                                              height: height / 1.5,
-                                              child: GoogleMap(
-                                                zoomGesturesEnabled: true,
-                                                myLocationEnabled: true,
-                                                myLocationButtonEnabled: false,
-                                                zoomControlsEnabled: true,
-                                                onMapCreated: _onMapCreated,
-                                                markers: <Marker>{
-                                                  Marker(
-                                                      markerId: const MarkerId(
-                                                          'shopmarkerId'),
-                                                      position: provider
-                                                                  .latlng ==
-                                                              null
-                                                          ? const LatLng(
-                                                              31.4825735,
-                                                              74.3227862)
-                                                          : provider.latlng!,
-                                                      draggable: true,
-                                                      onDragEnd: (latlong) {
-                                                        provider
-                                                            .mUpdateShopLocation(
-                                                                latlong);
-                                                      })
-                                                },
-                                                initialCameraPosition:
-                                                    CameraPosition(
-                                                  target:
-                                                      provider.latlng == null
-                                                          ? const LatLng(
-                                                              31.4825735,
-                                                              74.3227862)
-                                                          : provider.latlng!,
-                                                  zoom: 13.0,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
-                                        Center(
-                                          child: MaterialButton(
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10)),
+                                        SizedBox(
+                                          width: 150,
+                                          child: RoundedLoadingButton(
+                                            borderRadius: 10,
+                                            controller: _btnController,
                                             color: primaryColor,
-                                            onPressed: () {
-                                              provider.reverseGeocoding();
+                                            onPressed: () async {
+                                              log(provider.latlng!.toString());
+
+                                              provider
+                                                  .ismShopsDataUploading(true);
+
+                                              bool isCnicValid =
+                                                  _cnicController.text.isEmpty
+                                                      ? true
+                                                      : Utils.isValidCnic(
+                                                          _cnicController.text);
+
+                                              bool isphoneValid =
+                                                  Utils.isValidPhone(
+                                                      _phoneController.text);
+
+                                              // bool isLocationFormatChosen =
+                                              //     provider.useCurrentLocation
+                                              //         ? true
+                                              //         : provider
+                                              //                 .isShopLocationSelectedFromMap
+                                              //             ? true
+                                              //             : false;
+
+                                              bool isReadyToUpload =
+                                                  _shopNameController
+                                                          .text.isNotEmpty &&
+                                                      _ownerNameController
+                                                          .text.isNotEmpty &&
+                                                      provider.addressController
+                                                          .text.isNotEmpty &&
+                                                      isCnicValid &&
+                                                      // isLocationFormatChosen &&
+                                                      isphoneValid &&
+                                                      selectedValue != null;
+
+                                              if (isReadyToUpload) {
+                                                await provider
+                                                    .postUploadShopData(
+                                                        shopName:
+                                                            _shopNameController
+                                                                .text,
+                                                        cnic: _cnicController
+                                                            .text,
+                                                        ownerName:
+                                                            _ownerNameController
+                                                                .text,
+                                                        phone: _phoneController
+                                                            .text,
+                                                        address: provider
+                                                            .addressController
+                                                            .text,
+                                                        lat: provider
+                                                            .latlng!.latitude,
+                                                        long: provider
+                                                            .latlng!.longitude,
+                                                        assignedTo:
+                                                            selectedValue!);
+
+                                                // addRetailerProvider.ismShopsDataUploading(false);
+                                                // Utils.toast("Done");
+                                                // Navigator.pop(context);
+                                                // print("LOG_D UPLOADED");
+                                                mShowNotification(
+                                                    heading: "Success",
+                                                    context: context,
+                                                    message:
+                                                        "Shop added successfully");
+                                                _btnController.success();
+                                                Provider.of<userProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .mGetAllUsers();
+                                                Timer(
+                                                    const Duration(
+                                                        milliseconds: 600), () {
+                                                  _btnController.reset();
+                                                  _shopNameController.clear();
+                                                  _cnicController.clear();
+                                                  _ownerNameController.clear();
+                                                  _phoneController.clear();
+                                                  provider.shopImage = null;
+                                                });
+                                              } else {
+                                                _btnController.error();
+                                                Timer(
+                                                    const Duration(
+                                                        milliseconds: 600), () {
+                                                  _btnController.reset();
+                                                });
+
+                                                // Utils.toast(
+                                                //     "Please Fill all fields");
+                                                mShowNotificationError(
+                                                    heading: "Warning",
+                                                    context: context,
+                                                    message:
+                                                        "Please provide required data");
+                                                provider.ismShopsDataUploading(
+                                                    false);
+                                              }
                                             },
                                             child: const Padding(
                                               padding: EdgeInsets.all(8.0),
                                               child: Text(
-                                                "Get Address",
-                                                style: const TextStyle(
+                                                "Upload",
+                                                style: TextStyle(
                                                     color: Colors.white),
                                               ),
                                             ),
@@ -515,13 +418,102 @@ class _addShopState extends State<addShop> {
                                         ),
                                       ],
                                     ),
+                                  ],
+                                ),
+                              ),
+                              if (!Responsive.isMobile(context))
+                                const SizedBox(width: defaultPadding),
+                              // On Mobile means if the screen is less than 850 we dont want to show it
+                              if (!Responsive.isMobile(context))
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Choose Shop location",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: primaryColor),
+                                      ),
+                                      Card(
+                                        elevation: 3,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          child: SizedBox(
+                                            height: height / 1.5,
+                                            child: GoogleMap(
+                                              zoomGesturesEnabled: true,
+                                              myLocationEnabled: true,
+                                              myLocationButtonEnabled: false,
+                                              zoomControlsEnabled: true,
+                                              onMapCreated: _onMapCreated,
+                                              markers: <Marker>{
+                                                Marker(
+                                                    markerId: const MarkerId(
+                                                        'shopmarkerId'),
+                                                    position:
+                                                        provider.latlng == null
+                                                            ? const LatLng(
+                                                                31.4825735,
+                                                                74.3227862)
+                                                            : provider.latlng!,
+                                                    draggable: true,
+                                                    onDragEnd: (latlong) {
+                                                      provider
+                                                          .mUpdateShopLocation(
+                                                              latlong);
+                                                    })
+                                              },
+                                              initialCameraPosition:
+                                                  CameraPosition(
+                                                target: provider.latlng == null
+                                                    ? const LatLng(
+                                                        31.4825735, 74.3227862)
+                                                    : provider.latlng!,
+                                                zoom: 13.0,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Center(
+                                        child: MaterialButton(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          color: primaryColor,
+                                          onPressed: () {
+                                            provider.reverseGeocoding();
+                                          },
+                                          child: const Padding(
+                                            padding: EdgeInsets.all(8.0),
+                                            child: Text(
+                                              "Get Address",
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ))),
-        ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ))),
       ),
     );
 

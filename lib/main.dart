@@ -1,7 +1,10 @@
+import 'package:erp_aspire/Provider/money_provider.dart';
 import 'package:erp_aspire/Routes/Router.dart' as Router;
 import 'package:erp_aspire/provider/addRetailerProvider.dart';
 import 'package:erp_aspire/provider/authenticationProvider.dart';
+import 'package:erp_aspire/provider/company_provider.dart';
 import 'package:erp_aspire/provider/homeProvider.dart';
+import 'package:erp_aspire/provider/order_provider.dart';
 import 'package:erp_aspire/provider/ordersModificationProvider.dart';
 import 'package:erp_aspire/provider/productsProvider.dart';
 import 'package:erp_aspire/provider/shopsProvider.dart';
@@ -31,7 +34,10 @@ class MyApp extends StatelessWidget {
           value: userProvider(),
         ),
         ChangeNotifierProvider.value(value: addRetailerProvider()),
-        ChangeNotifierProvider.value(value: shopsProvider()),
+        ChangeNotifierProvider.value(value: ShopsProvider()),
+        ChangeNotifierProvider.value(value: CompanyProvider()),
+        ChangeNotifierProvider.value(value: OrderProvider()),
+        ChangeNotifierProvider.value(value: MoneyProvider()),
         ChangeNotifierProvider(
           create: (context) => authenticationProvider(),
         ),

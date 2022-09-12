@@ -1,25 +1,81 @@
+import 'package:erp_aspire/models/add_money_model.dart';
+import 'package:erp_aspire/models/orderModel.dart';
+import 'package:erp_aspire/provider/homeProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../../../Provider/money_provider.dart';
 import '../../../constants.dart';
 
-class sales_chart extends StatelessWidget {
+class sales_chart extends StatefulWidget {
   const sales_chart({Key? key}) : super(key: key);
+
+  @override
+  State<sales_chart> createState() => _sales_chartState();
+}
+
+class _sales_chartState extends State<sales_chart> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getList();
+  }
+
+  List<ChartModel> mySaleGraph = [];
+  List<ChartModel> myAllOrdersSaleGraph = [];
+  List<ChartModel> myCreditGraph = [];
+
+  getList() {
+    List<orderModel> list =
+        Provider.of<homepage_provider>(context, listen: false)
+            .completedOrdermodel;
+    for (int i = 0; i < list.length; i++) {
+      DateTime date = DateTime.fromMillisecondsSinceEpoch(list[i].timestamp);
+      mySaleGraph.add(ChartModel(
+          gdnCode: '${date.day}-${date.month}-${date.year}',
+          saleTotal: list[i].grandtotal));
+    }
+
+    List<orderModel> listOfAll =
+        Provider.of<homepage_provider>(context, listen: false).allOrdermodel;
+    for (int i = 0; i < listOfAll.length; i++) {
+      DateTime date =
+          DateTime.fromMillisecondsSinceEpoch(listOfAll[i].timestamp);
+      myAllOrdersSaleGraph.add(ChartModel(
+          gdnCode: '${date.day}-${date.month}-${date.year}',
+          saleTotal: listOfAll[i].grandtotal));
+    }
+    // Provider.of<MoneyProvider>(context, listen: false)
+    //     .getTransactions()
+    //     .then((_) {
+    List<AddMoneyModel> allTrans =
+        Provider.of<MoneyProvider>(context, listen: false).allShopsTransactions;
+    for (int i = 0; i < allTrans.length; i++) {
+      DateTime date =
+          DateTime.fromMillisecondsSinceEpoch(allTrans[i].timestamp);
+      myCreditGraph.add(ChartModel(
+          gdnCode: '${date.day}-${date.month}-${date.year}',
+          saleTotal: allTrans[i].amountPayed));
+    }
+    // });
+  }
 
   @override
   Widget build(BuildContext context) {
     List<ChartModel> saleGraph = [
-      ChartModel(gdnCode: 40, saleTotal: 4800),
-      ChartModel(gdnCode: 41, saleTotal: 12000),
-      ChartModel(gdnCode: 42, saleTotal: 4000),
-      ChartModel(gdnCode: 43, saleTotal: 6030),
-      ChartModel(gdnCode: 44, saleTotal: 8050),
-      ChartModel(gdnCode: 45, saleTotal: 6000),
-      ChartModel(gdnCode: 46, saleTotal: 5000),
-      ChartModel(gdnCode: 47, saleTotal: 9000),
-      ChartModel(gdnCode: 48, saleTotal: 3000),
-      ChartModel(gdnCode: 49, saleTotal: 7500),
-      ChartModel(gdnCode: 50, saleTotal: 2800),
+      ChartModel(gdnCode: '40', saleTotal: 4800),
+      ChartModel(gdnCode: '41', saleTotal: 12000),
+      ChartModel(gdnCode: '42', saleTotal: 4000),
+      ChartModel(gdnCode: '43', saleTotal: 6030),
+      ChartModel(gdnCode: '44', saleTotal: 8050),
+      ChartModel(gdnCode: '45', saleTotal: 6000),
+      ChartModel(gdnCode: '46', saleTotal: 5000),
+      ChartModel(gdnCode: '47', saleTotal: 9000),
+      ChartModel(gdnCode: '48', saleTotal: 3000),
+      ChartModel(gdnCode: '49', saleTotal: 7500),
+      ChartModel(gdnCode: '50', saleTotal: 2800),
       // ChartModel(gdnCode: 51, saleTotal: 2000),
       // ChartModel(gdnCode: 52, saleTotal: 20000),
       // ChartModel(gdnCode: 53, saleTotal: 2001),
@@ -82,10 +138,10 @@ class sales_chart extends StatelessWidget {
     ];
 
     return Container(
-      padding: EdgeInsets.all(defaultPadding),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.all(defaultPadding),
+      decoration: const BoxDecoration(
         color: secondaryColor,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,23 +153,23 @@ class sales_chart extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: saleGraphC(context,
-                dateSource: saleGraph
+                dateSource: mySaleGraph
                     .map((e) => ChartModel(
                         saleTotal: double.parse(e.saleTotal.toString()),
-                        gdnCode: int.parse(e.gdnCode.toString())))
+                        gdnCode: e.gdnCode.toString()))
                     .toList()),
           ),
           Text(
-            "Inventory",
+            "All Orders Placed Graph",
             style: Theme.of(context).textTheme.subtitle1,
           ),
           SizedBox(
             width: double.infinity,
             child: saleGraphC1(context,
-                dateSource: saleGraph
+                dateSource: myAllOrdersSaleGraph
                     .map((e) => ChartModel(
                         saleTotal: double.parse(e.saleTotal.toString()),
-                        gdnCode: int.parse(e.gdnCode.toString())))
+                        gdnCode: e.gdnCode.toString()))
                     .toList()),
           ),
           Text(
@@ -123,46 +179,46 @@ class sales_chart extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: saleGraphC2(context,
-                dateSource: saleGraph
+                dateSource: myCreditGraph
                     .map((e) => ChartModel(
                         saleTotal: double.parse(e.saleTotal.toString()),
-                        gdnCode: int.parse(e.gdnCode.toString())))
+                        gdnCode: e.gdnCode.toString()))
                     .toList()),
           ),
-          Text(
-            "Price Range",
-            style: Theme.of(context).textTheme.subtitle1,
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: saleGraphC3(
-              context,
-              chartData: chartData
-                  .map((e) => ChartData(
-                        high: double.parse(e.high.toString()),
-                        low: double.parse(e.low.toString()),
-                        x: e.x,
-                      ))
-                  .toList(),
-            ),
-          ),
-          Text(
-            "Sales Yearly",
-            style: Theme.of(context).textTheme.subtitle1,
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: saleGraphC4(
-              context,
-              chartData: yearlyGraph
-                  .map((e) => ChartData(
-                        high: double.parse(e.high.toString()),
-                        low: double.parse(e.low.toString()),
-                        x: e.x,
-                      ))
-                  .toList(),
-            ),
-          ),
+          // Text(
+          //   "Price Range",
+          //   style: Theme.of(context).textTheme.subtitle1,
+          // ),
+          // SizedBox(
+          //   width: double.infinity,
+          //   child: saleGraphC3(
+          //     context,
+          //     chartData: chartData
+          //         .map((e) => ChartData(
+          //               high: double.parse(e.high.toString()),
+          //               low: double.parse(e.low.toString()),
+          //               x: e.x,
+          //             ))
+          //         .toList(),
+          //   ),
+          // ),
+          // Text(
+          //   "Sales Yearly",
+          //   style: Theme.of(context).textTheme.subtitle1,
+          // ),
+          // SizedBox(
+          //   width: double.infinity,
+          //   child: saleGraphC4(
+          //     context,
+          //     chartData: yearlyGraph
+          //         .map((e) => ChartData(
+          //               high: double.parse(e.high.toString()),
+          //               low: double.parse(e.low.toString()),
+          //               x: e.x,
+          //             ))
+          //         .toList(),
+          //   ),
+          // ),
         ],
       ),
     );
@@ -199,8 +255,7 @@ Widget saleGraphC(BuildContext context,
             color: primaryColor,
             dataSource: dateSource,
             enableTooltip: false,
-            xValueMapper: (ChartModel model, _) =>
-                int.parse(model.gdnCode.toString()).toString(),
+            xValueMapper: (ChartModel model, _) => model.gdnCode.toString(),
             yValueMapper: (ChartModel model, _) =>
                 double.parse(model.saleTotal.toString()),
           )
@@ -217,7 +272,7 @@ Widget saleGraphC1(BuildContext context,
     height: MediaQuery.of(context).size.height * 0.3,
     child: SfCartesianChart(
         trackballBehavior: TrackballBehavior(
-          lineColor: Color(0xFFFFA113),
+          lineColor: const Color(0xFFFFA113),
           shouldAlwaysShow: false,
           activationMode: ActivationMode.singleTap,
           enable: true,
@@ -234,11 +289,10 @@ Widget saleGraphC1(BuildContext context,
               shape: DataMarkerType.none,
             ),
             // color: Color(0xFFFFA113).withOpacity(0.8),
-            color: Color(0xFFFFA113),
+            color: const Color(0xFFFFA113),
             dataSource: dateSource,
             enableTooltip: false,
-            xValueMapper: (ChartModel model, _) =>
-                int.parse(model.gdnCode.toString()).toString(),
+            xValueMapper: (ChartModel model, _) => model.gdnCode.toString(),
             yValueMapper: (ChartModel model, _) =>
                 double.parse(model.saleTotal.toString()),
           ),
@@ -267,7 +321,7 @@ Widget saleGraphC2(BuildContext context,
     height: MediaQuery.of(context).size.height * 0.3,
     child: SfCartesianChart(
         trackballBehavior: TrackballBehavior(
-          lineColor: Color(0xFFA4CDFF),
+          lineColor: const Color(0xFFA4CDFF),
           shouldAlwaysShow: false,
           activationMode: ActivationMode.singleTap,
           enable: true,
@@ -283,13 +337,12 @@ Widget saleGraphC2(BuildContext context,
               isVisible: true,
               shape: DataMarkerType.none,
             ),
-            color: Color(0xFFA4CDFF),
+            color: const Color(0xFFA4CDFF),
             dataSource: dateSource,
             enableTooltip: false,
             width: 1.2, // Width of the bars
             spacing: 0.6,
-            xValueMapper: (ChartModel model, _) =>
-                int.parse(model.gdnCode.toString()).toString(),
+            xValueMapper: (ChartModel model, _) => model.gdnCode.toString(),
             yValueMapper: (ChartModel model, _) =>
                 double.parse(model.saleTotal.toString()),
             // borderRadius: BorderRadius.only(
@@ -309,7 +362,7 @@ Widget saleGraphC3(BuildContext context, {required List<ChartData> chartData}) {
       child: SfCartesianChart(
           primaryXAxis: CategoryAxis(),
           trackballBehavior: TrackballBehavior(
-            lineColor: Color(0xFFA4CDFF),
+            lineColor: const Color(0xFFA4CDFF),
             shouldAlwaysShow: false,
             activationMode: ActivationMode.singleTap,
             enable: true,
@@ -326,7 +379,7 @@ Widget saleGraphC3(BuildContext context, {required List<ChartData> chartData}) {
               xValueMapper: (ChartData sales, _) => sales.x,
               lowValueMapper: (ChartData sales, _) => sales.low,
               highValueMapper: (ChartData sales, _) => sales.high,
-              dataLabelSettings: DataLabelSettings(
+              dataLabelSettings: const DataLabelSettings(
                   isVisible: false,
                   labelAlignment: ChartDataLabelAlignment.top),
             )
@@ -355,12 +408,12 @@ Widget saleGraphC4(BuildContext context, {required List<ChartData> chartData}) {
           series: <ChartSeries>[
             HiloSeries<ChartData, String>(
               dataSource: chartData,
-              color: Color(0xFFA4CDFF),
+              color: const Color(0xFFA4CDFF),
               xValueMapper: (ChartData sales, _) => sales.x,
               lowValueMapper: (ChartData sales, _) => sales.low,
               highValueMapper: (ChartData sales, _) => sales.high,
               borderWidth: 10.0,
-              dataLabelSettings: DataLabelSettings(
+              dataLabelSettings: const DataLabelSettings(
                   isVisible: false,
                   labelAlignment: ChartDataLabelAlignment.top),
             ),
@@ -376,7 +429,7 @@ class ChartData {
 }
 
 class ChartModel {
-  int gdnCode;
+  String gdnCode;
   double saleTotal;
 
   ChartModel({
